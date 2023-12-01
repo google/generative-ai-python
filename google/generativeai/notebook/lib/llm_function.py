@@ -26,6 +26,9 @@ from typing import (
     Optional,
     Sequence,
     Union,
+    Tuple,
+    List,
+    Dict,
 )
 
 from google.generativeai.notebook.lib import llmfn_input_utils
@@ -70,7 +73,7 @@ def _convert_compare_fn_to_batch_add_fn(
 
     def _fn(
         lhs_and_rhs_rows: Sequence[
-            tuple[
+            Tuple[
                 llmfn_output_row.LLMFnOutputRowView,
                 llmfn_output_row.LLMFnOutputRowView,
             ]
@@ -144,7 +147,7 @@ class LLMFunction(
             override how the outputs of this LLMFunction will be displayed in a
             notebook (See further documentation in LLMFnOutputs.__init__().)
         """
-        self._post_process_cmds: list[llmfn_post_process_cmds.LLMFnPostProcessCommand] = []
+        self._post_process_cmds: List[llmfn_post_process_cmds.LLMFnPostProcessCommand] = []
         self._outputs_ipython_display_fn = outputs_ipython_display_fn
 
     @abc.abstractmethod
@@ -269,12 +272,12 @@ class LLMFunctionImpl(LLMFunction):
     def _call_impl(
         self, inputs: llmfn_input_utils.LLMFunctionInputs | None
     ) -> Sequence[llmfn_outputs.LLMFnOutputEntry]:
-        results: list[llmfn_outputs.LLMFnOutputEntry] = []
+        results: List[llmfn_outputs.LLMFnOutputEntry] = []
         for info in _generate_prompts(prompts=self._prompts, inputs=inputs):
             model_results = self._model.call_model(
                 model_input=info.model_input, model_args=self._model_args
             )
-            output_rows: list[llmfn_output_row.LLMFnOutputRow] = []
+            output_rows: List[llmfn_output_row.LLMFnOutputRow] = []
             for result_num, text_result in enumerate(model_results.text_results):
                 output_rows.append(
                     llmfn_output_row.LLMFnOutputRow(
@@ -308,9 +311,9 @@ class LLMCompareFunction(LLMFunction):
 
     def __init__(
         self,
-        lhs_name_and_fn: tuple[str, LLMFunction],
-        rhs_name_and_fn: tuple[str, LLMFunction],
-        compare_name_and_fns: Sequence[tuple[str, CompareFn]] | None = None,
+        lhs_name_and_fn: Tuple[str, LLMFunction],
+        rhs_name_and_fn: Tuple[str, LLMFunction],
+        compare_name_and_fns: Sequence[Tuple[str, CompareFn]] | None = None,
         outputs_ipython_display_fn: Callable[[llmfn_outputs.LLMFnOutputs], None] | None = None,
     ):
         """Constructor.
@@ -384,7 +387,7 @@ class LLMCompareFunction(LLMFunction):
         rhs_results = self._rhs_fn(inputs)
 
         # Combine the results.
-        outputs: list[llmfn_outputs.LLMFnOutputEntry] = []
+        outputs: List[llmfn_outputs.LLMFnOutputEntry] = []
         for lhs_entry, rhs_entry in zip(lhs_results, rhs_results):
             if lhs_entry.prompt_num != rhs_entry.prompt_num:
                 raise RuntimeError(
@@ -409,7 +412,7 @@ class LLMCompareFunction(LLMFunction):
             num_output_rows = min(len(lhs_entry.output_rows), len(rhs_entry.output_rows))
             lhs_output_rows = lhs_entry.output_rows[:num_output_rows]
             rhs_output_rows = rhs_entry.output_rows[:num_output_rows]
-            output_rows: list[llmfn_output_row.LLMFnOutputRow] = []
+            output_rows: List[llmfn_output_row.LLMFnOutputRow] = []
             for result_num, lhs_and_rhs_output_row in enumerate(
                 zip(lhs_output_rows, rhs_output_rows)
             ):
@@ -421,7 +424,7 @@ class LLMCompareFunction(LLMFunction):
                 # text_result if a prompt produces multiple text_results) to be
                 # different between the left and right sides, we ignore their
                 # RESULT_NUM entries and write our own.
-                row_data: dict[str, Any] = {
+                row_data: Dict[str, Any] = {
                     llmfn_outputs.ColumnNames.RESULT_NUM: result_num,
                     self._result_name: self._result_compare_fn(lhs_output_row, rhs_output_row),
                 }

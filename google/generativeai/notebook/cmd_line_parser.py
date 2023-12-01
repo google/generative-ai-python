@@ -18,7 +18,7 @@ from __future__ import annotations
 import argparse
 import shlex
 import sys
-from typing import AbstractSet, Any, Callable, MutableMapping, Sequence
+from typing import AbstractSet, Any, Callable, MutableMapping, Sequence, Tuple
 
 from google.generativeai.notebook import argument_parser
 from google.generativeai.notebook import flag_def
@@ -63,7 +63,7 @@ def _get_resolve_input_from_py_var_fn(
 
 def _resolve_compare_fn_var(
     name: str,
-) -> tuple[str, parsed_args_lib.TextResultCompareFn]:
+) -> Tuple[str, parsed_args_lib.TextResultCompareFn]:
     """Resolves a value passed into --compare_fn."""
     fn = py_utils.get_py_var(name)
     if not isinstance(fn, Callable):
@@ -320,7 +320,7 @@ def _create_compare_parser(
     # Add positional arguments.
     def _resolve_llm_function_fn(
         var_name: str,
-    ) -> tuple[str, llm_function.LLMFunction]:
+    ) -> Tuple[str, llm_function.LLMFunction]:
         try:
             py_utils.validate_var_name(var_name)
         except ValueError as e:
@@ -426,7 +426,7 @@ class CmdLineParser:
     def _split_post_processing_tokens(
         cls,
         tokens: Sequence[str],
-    ) -> tuple[Sequence[str], parsed_args_lib.PostProcessingTokens]:
+    ) -> Tuple[Sequence[str], parsed_args_lib.PostProcessingTokens]:
         """Splits inputs into the command and post processing tokens.
 
         The command is represented as a sequence of tokens.
@@ -459,7 +459,7 @@ class CmdLineParser:
     @classmethod
     def _tokenize_line(
         cls, line: str
-    ) -> tuple[Sequence[str], parsed_args_lib.PostProcessingTokens]:
+    ) -> Tuple[Sequence[str], parsed_args_lib.PostProcessingTokens]:
         """Parses `line` and returns command line and post processing tokens."""
         # Check to make sure there is a command at the start. If not, add the
         # default command to the list of tokens.
@@ -476,7 +476,7 @@ class CmdLineParser:
     @classmethod
     def _get_model_args(
         cls, parsed_results: MutableMapping[str, Any]
-    ) -> tuple[MutableMapping[str, Any], model_lib.ModelArguments]:
+    ) -> Tuple[MutableMapping[str, Any], model_lib.ModelArguments]:
         """Extracts fields for model args from `parsed_results`.
 
         Keys specific to model arguments will be removed from `parsed_results`.
@@ -503,7 +503,7 @@ class CmdLineParser:
         self,
         line: str,
         placeholders: AbstractSet[str] | None = None,
-    ) -> tuple[parsed_args_lib.ParsedArgs, parsed_args_lib.PostProcessingTokens]:
+    ) -> Tuple[parsed_args_lib.ParsedArgs, parsed_args_lib.PostProcessingTokens]:
         """Parses the commandline and returns ParsedArgs and post-processing tokens.
 
         Args:

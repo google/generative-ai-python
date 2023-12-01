@@ -35,7 +35,7 @@ import abc
 import argparse
 import dataclasses
 import enum
-from typing import Any, Callable, Sequence, Tuple, Union
+from typing import Any, Callable, Sequence, Tuple, Union, List
 
 from google.generativeai.notebook.lib import llmfn_inputs_source
 from google.generativeai.notebook.lib import llmfn_outputs
@@ -107,7 +107,7 @@ class FlagDef(abc.ABC):
     dest_type: type[_DESTTYPES] | None = None
     parse_to_dest_type_fn: _PARSEFN | None = None
 
-    choices: list[_PARSETYPES] | None = None
+    choices: List[_PARSETYPES] | None = None
     help_msg: str | None = None
 
     @abc.abstractmethod

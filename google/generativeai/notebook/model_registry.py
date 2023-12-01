@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import enum
-from typing import Callable
+from typing import Callable, Dict
 
 from google.generativeai.notebook import text_model
 from google.generativeai.notebook.lib import model as model_lib
@@ -33,8 +33,8 @@ class ModelRegistry:
     DEFAULT_MODEL = ModelName.TEXT_MODEL
 
     def __init__(self):
-        self._model_cache: dict[ModelName, model_lib.AbstractModel] = {}
-        self._model_constructors: dict[ModelName, Callable[[], model_lib.AbstractModel]] = {
+        self._model_cache: Dict[ModelName, model_lib.AbstractModel] = {}
+        self._model_constructors: Dict[ModelName, Callable[[], model_lib.AbstractModel]] = {
             ModelName.ECHO_MODEL: model_lib.EchoModel,
             ModelName.TEXT_MODEL: text_model.TextModel,
         }

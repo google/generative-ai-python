@@ -16,7 +16,7 @@
 import dataclasses
 import pprint
 import textwrap
-from typing import Any
+from typing import Any, List
 import unittest
 
 
@@ -30,7 +30,7 @@ from absl.testing import parameterized
 class MyClass:
     a: int
     b: float
-    c: list[int]
+    c: List[int]
     d: Any
 
 

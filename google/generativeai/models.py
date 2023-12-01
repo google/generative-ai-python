@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Any, Literal
+from typing import Any, Literal, Dict
 
 import google.ai.generativelanguage as glm
 from google.generativeai import operations
@@ -324,7 +324,7 @@ def update_tuned_model(
 @typing.overload
 def update_tuned_model(
     tuned_model: str,
-    updates: dict[str, Any],
+    updates: Dict[str, Any],
     *,
     client: glm.ModelServiceClient | None = None,
 ) -> model_types.TunedModel:
@@ -333,7 +333,7 @@ def update_tuned_model(
 
 def update_tuned_model(
     tuned_model: str | glm.TunedModel,
-    updates: dict[str, Any] | None = None,
+    updates: Dict[str, Any] | None = None,
     *,
     client: glm.ModelServiceClient | None = None,
 ) -> model_types.TunedModel:

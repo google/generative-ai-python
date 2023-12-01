@@ -25,6 +25,8 @@ from typing import (
     Iterator,
     Mapping,
     Sequence,
+    List,
+    Dict,
 )
 
 from google.generativeai.notebook.lib import llmfn_output_row
@@ -97,7 +99,7 @@ class LLMFnOutputsBase(Sequence[LLMFnOutputEntry]):
         Args:
           outputs: The contents of this LLMFnOutputs instance.
         """
-        self._outputs: list[LLMFnOutputEntry] = list(outputs) if outputs is not None else []
+        self._outputs: List[LLMFnOutputEntry] = list(outputs) if outputs is not None else []
 
     # Needed for Iterable[LLMFnOutputEntry].
     def __iter__(self) -> Iterator[LLMFnOutputEntry]:
@@ -153,7 +155,7 @@ class LLMFnOutputsBase(Sequence[LLMFnOutputEntry]):
         # Note: `total_keys_set` is a Python dictionary instead of a Python set
         # because Python dictionaries preserve the order in which entries are
         # added, whereas Python sets do not.
-        total_keys_set: dict[str, None] = {k: None for k in data.keys()}
+        total_keys_set: Dict[str, None] = {k: None for k in data.keys()}
         for output in self._outputs:
             for result in output.output_rows:
                 for key in list(result.keys())[:-1]:

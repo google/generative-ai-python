@@ -87,6 +87,7 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",  # Colab
         "Programming Language :: Python :: 3.11",
@@ -95,7 +96,7 @@ setuptools.setup(
     ],
     platforms="Posix; MacOS X; Windows",
     packages=packages,
-    python_requires=">=3.9",
+    python_requires=">=3.8",
     namespace_packages=namespaces,
     install_requires=dependencies,
     extras_require=extras_require,

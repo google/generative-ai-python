@@ -16,8 +16,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Any, Iterator, Mapping
-
+from typing import Any, Iterator, Mapping, Dict
 
 # The type of value stored in a cell.
 _CELLVALUETYPE = Any
@@ -96,7 +95,7 @@ class LLMFnOutputRow(LLMFnOutputRowView):
           result_type: The type of the result cell. This will be enforced at
             runtime.
         """
-        self._data: dict[str, _CELLVALUETYPE] = dict(data)
+        self._data: Dict[str, _CELLVALUETYPE] = dict(data)
         if not self._data:
             raise ValueError("Must provide non-empty data")
 

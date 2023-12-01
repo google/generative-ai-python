@@ -20,7 +20,7 @@ llm_function.py.
 from __future__ import annotations
 
 import abc
-from typing import Sequence
+from typing import Sequence, List, Tuple
 
 from google.generativeai.notebook.lib import llmfn_output_row
 from google.generativeai.notebook.lib import llmfn_post_process
@@ -98,7 +98,7 @@ class LLMFnPostProcessReorderCommand(LLMFnImplPostProcessCommand):
                 'Error executing "{}": returned indices should be unique'.format(self._name)
             )
 
-        new_rows: list[llmfn_output_row.LLMFnOutputRow] = []
+        new_rows: List[llmfn_output_row.LLMFnOutputRow] = []
         for idx in new_row_indices:
             if idx < 0:
                 raise llmfn_post_process.PostProcessExecutionError(
@@ -138,7 +138,7 @@ class LLMFnPostProcessAddCommand(LLMFnImplPostProcessCommand):
                 " ({})".format(self._name, len(new_values), len(rows))
             )
 
-        new_rows: list[llmfn_output_row.LLMFnOutputRow] = []
+        new_rows: List[llmfn_output_row.LLMFnOutputRow] = []
         for new_value, row in zip(new_values, rows):
             new_row = _convert_view_to_output_row(row)
             new_row.add(key=self._name, value=new_value)
@@ -168,7 +168,7 @@ class LLMFnPostProcessReplaceCommand(LLMFnImplPostProcessCommand):
                 " ({})".format(self._name, len(new_values), len(rows))
             )
 
-        new_rows: list[llmfn_output_row.LLMFnOutputRow] = []
+        new_rows: List[llmfn_output_row.LLMFnOutputRow] = []
         for new_value, row in zip(new_values, rows):
             new_row = _convert_view_to_output_row(row)
             new_row.set_result_value(value=new_value)
@@ -184,7 +184,7 @@ class LLMCompareFnPostProcessCommand(LLMFnPostProcessCommand):
     def run(
         self,
         rows: Sequence[
-            tuple[
+            Tuple[
                 llmfn_output_row.LLMFnOutputRowView,
                 llmfn_output_row.LLMFnOutputRowView,
                 llmfn_output_row.LLMFnOutputRowView,
@@ -223,7 +223,7 @@ class LLMCompareFnPostProcessAddCommand(LLMCompareFnPostProcessCommand):
     def run(
         self,
         rows: Sequence[
-            tuple[
+            Tuple[
                 llmfn_output_row.LLMFnOutputRowView,
                 llmfn_output_row.LLMFnOutputRowView,
                 llmfn_output_row.LLMFnOutputRowView,
@@ -237,7 +237,7 @@ class LLMCompareFnPostProcessAddCommand(LLMCompareFnPostProcessCommand):
                 " ({})".format(self._name, len(new_values), len(rows))
             )
 
-        new_rows: list[llmfn_output_row.LLMFnOutputRow] = []
+        new_rows: List[llmfn_output_row.LLMFnOutputRow] = []
         for new_value, row in zip(new_values, [combined for _, _, combined in rows]):
             new_row = _convert_view_to_output_row(row)
             new_row.add(key=self._name, value=new_value)

@@ -18,7 +18,7 @@ Common methods for Commands such as RunCommand and CompileCommand.
 """
 from __future__ import annotations
 
-from typing import AbstractSet, Any, Callable, Sequence
+from typing import AbstractSet, Any, Callable, Sequence, Tuple, List
 
 from google.generativeai.notebook import ipython_env
 from google.generativeai.notebook import model_registry
@@ -53,7 +53,7 @@ class _GroundTruthLLMFunction(llm_function.LLMFunction):
                 )
             )
 
-        outputs: list[llmfn_outputs.LLMFnOutputEntry] = []
+        outputs: List[llmfn_outputs.LLMFnOutputEntry] = []
         for idx, (value, prompt_vars) in enumerate(zip(self._data, normalized_inputs)):
             output_row = llmfn_output_row.LLMFnOutputRow(
                 data={
@@ -87,7 +87,7 @@ def create_llm_function(
     post_processing_fns: Sequence[post_process_utils.ParsedPostProcessExpr],
 ) -> llm_function.LLMFunction:
     """Creates an LLMFunction from Command.execute() arguments."""
-    prompts: list[str] = [cell_content]
+    prompts: List[str] = [cell_content]
 
     llmfn_outputs_display_fn = _get_ipython_display_fn(env) if env else None
 
@@ -106,8 +106,8 @@ def create_llm_function(
 
 
 def _convert_simple_compare_fn(
-    name_and_simple_fn: tuple[str, Callable[[str, str], Any]]
-) -> tuple[str, llm_function.CompareFn]:
+    name_and_simple_fn: Tuple[str, Callable[[str, str], Any]]
+) -> Tuple[str, llm_function.CompareFn]:
     simple_fn = name_and_simple_fn[1]
     new_fn = lambda x, y: simple_fn(x.result_value(), y.result_value())
     return name_and_simple_fn[0], new_fn

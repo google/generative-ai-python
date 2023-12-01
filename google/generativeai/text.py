@@ -15,9 +15,8 @@
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Iterable, Sequence
 import itertools
-from typing import Iterable, overload, TypeVar
+from typing import Iterable, overload, TypeVar, Dict, Sequence, List
 
 import google.ai.generativelanguage as glm
 
@@ -37,7 +36,7 @@ try:
 except AttributeError:
     T = TypeVar("T")
 
-    def _batched(iterable: Iterable[T], n: int) -> Iterable[list[T]]:
+    def _batched(iterable: Iterable[T], n: int) -> Iterable[List[T]]:
         if n < 1:
             raise ValueError(f"Batch size `n` must be >1, got: {n}")
         batch = []
@@ -51,7 +50,7 @@ except AttributeError:
             yield batch
 
 
-def _make_text_prompt(prompt: str | dict[str, str]) -> glm.TextPrompt:
+def _make_text_prompt(prompt: str | Dict[str, str]) -> glm.TextPrompt:
     """
     Creates a `glm.TextPrompt` object based on the provided prompt input.
 

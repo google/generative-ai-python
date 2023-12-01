@@ -17,8 +17,7 @@ from __future__ import annotations
 import os
 import dataclasses
 import types
-from typing import Any, cast
-from collections.abc import Sequence
+from typing import Any, cast, Tuple, Dict, Sequence
 
 import google.ai.generativelanguage as glm
 
@@ -34,8 +33,8 @@ USER_AGENT = "genai-py"
 
 @dataclasses.dataclass
 class _ClientManager:
-    client_config: dict[str, Any] = dataclasses.field(default_factory=dict)
-    default_metadata: Sequence[tuple[str, str]] = ()
+    client_config: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    default_metadata: Sequence[Tuple[str, str]] = ()
     discuss_client: glm.DiscussServiceClient | None = None
     discuss_async_client: glm.DiscussServiceAsyncClient | None = None
     model_client: glm.ModelServiceClient | None = None
@@ -56,7 +55,7 @@ class _ClientManager:
         transport: str | None = None,
         client_options: client_options_lib.ClientOptions | dict | None = None,
         client_info: gapic_v1.client_info.ClientInfo | None = None,
-        default_metadata: Sequence[tuple[str, str]] = (),
+        default_metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         """Captures default client configuration.
 
@@ -201,7 +200,7 @@ def configure(
     transport: str | None = None,
     client_options: client_options_lib.ClientOptions | dict | None = None,
     client_info: gapic_v1.client_info.ClientInfo | None = None,
-    default_metadata: Sequence[tuple[str, str]] = (),
+    default_metadata: Sequence[Tuple[str, str]] = (),
 ):
     """Captures default client configuration.
 

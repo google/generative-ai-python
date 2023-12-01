@@ -15,7 +15,7 @@
 """Utilities for handling input variables."""
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence, Union
+from typing import Any, Mapping, Sequence, Union, List, Dict
 
 from google.generativeai.notebook.lib import llmfn_inputs_source
 
@@ -57,7 +57,7 @@ def _normalize_column_order_values_list(
     inputs: _ColumnOrderValuesList,
 ) -> _NormalizedInputsList:
     """Transforms prompt inputs into a list of dictionaries."""
-    return_list: list[dict[str, str]] = []
+    return_list: List[Dict[str, str]] = []
     keys = list(inputs.keys())
     if keys:
         first_key = keys[0]
@@ -71,7 +71,7 @@ def _normalize_column_order_values_list(
 
 def to_normalized_inputs(inputs: LLMFunctionInputs) -> _NormalizedInputsList:
     """Handles the different types of `inputs` and returns a normalized form."""
-    normalized_inputs: list[Mapping[str, str]] = []
+    normalized_inputs: List[Mapping[str, str]] = []
     if isinstance(inputs, llmfn_inputs_source.LLMFnInputsSource):
         normalized_inputs.extend(inputs.to_normalized_inputs())
     elif _is_column_order_values_list(inputs):

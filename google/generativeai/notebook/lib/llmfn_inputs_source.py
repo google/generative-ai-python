@@ -16,8 +16,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Callable, Mapping, Sequence
-
+from typing import Callable, Mapping, Sequence, Tuple
 
 NormalizedInputsList = Sequence[Mapping[str, str]]
 
@@ -60,7 +59,7 @@ class LLMFnInputsSource(abc.ABC):
     @abc.abstractmethod
     def _to_normalized_inputs_impl(
         self,
-    ) -> tuple[NormalizedInputsList, Callable[[], None]]:
+    ) -> Tuple[NormalizedInputsList, Callable[[], None]]:
         """Returns a tuple of NormalizedInputsList and a display function.
 
         The display function displays some status about the input (e.g. where

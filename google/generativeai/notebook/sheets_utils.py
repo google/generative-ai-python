@@ -15,7 +15,7 @@
 """SheetsInputs."""
 from __future__ import annotations
 
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence, Tuple, List
 from urllib import parse
 from google.generativeai.notebook import gspread_client
 from google.generativeai.notebook import sheets_id
@@ -87,7 +87,7 @@ class SheetsInputs(llmfn_inputs_source.LLMFnInputsSource):
 
     def _to_normalized_inputs_impl(
         self,
-    ) -> tuple[Sequence[Mapping[str, str]], Callable[[], None]]:
+    ) -> Tuple[Sequence[Mapping[str, str]], Callable[[], None]]:
         return gspread_client.get_client().get_all_records(
             sid=self._sid, worksheet_id=self._worksheet_id
         )
@@ -102,7 +102,7 @@ class SheetsOutputs(llmfn_outputs.LLMFnOutputsSink):
     def write_outputs(self, outputs: llmfn_outputs.LLMFnOutputsBase) -> None:
         # Transpose `outputs` into a list of rows.
         outputs_dict = outputs.as_dict()
-        outputs_rows: list[Sequence[Any]] = []
+        outputs_rows: List[Sequence[Any]] = []
         outputs_rows.append(list(outputs_dict.keys()))
         outputs_rows.extend([list(x) for x in zip(*outputs_dict.values())])
 

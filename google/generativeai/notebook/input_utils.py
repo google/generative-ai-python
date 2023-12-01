@@ -15,7 +15,7 @@
 """Utilities for handling input variables."""
 from __future__ import annotations
 
-from typing import Callable, Mapping
+from typing import Callable, Mapping, Tuple, List
 
 from google.generativeai.notebook import parsed_args_lib
 from google.generativeai.notebook import py_utils
@@ -41,7 +41,7 @@ class _NormalizedInputsSource(llmfn_inputs_source.LLMFnInputsSource):
 
     def _to_normalized_inputs_impl(
         self,
-    ) -> tuple[llmfn_inputs_source.NormalizedInputsList, Callable[[], None]]:
+    ) -> Tuple[llmfn_inputs_source.NormalizedInputsList, Callable[[], None]]:
         return self._normalized_inputs, lambda: None
 
 
@@ -61,7 +61,7 @@ def join_inputs_sources(
     suppress_status_msgs: bool = False,
 ) -> llmfn_inputs_source.LLMFnInputsSource:
     """Get a single combined input source from `parsed_args."""
-    combined_inputs: list[Mapping[str, str]] = []
+    combined_inputs: List[Mapping[str, str]] = []
     for source in parsed_args.inputs:
         combined_inputs.extend(
             source.to_normalized_inputs(suppress_status_msgs=suppress_status_msgs)

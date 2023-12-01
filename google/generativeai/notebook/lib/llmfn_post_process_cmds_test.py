@@ -14,7 +14,7 @@
 # limitations under the License.
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Sequence, Tuple
 
 from absl.testing import absltest
 from google.generativeai.notebook.lib import llmfn_output_row
@@ -149,7 +149,7 @@ class LLMFnPostProcessCmdTest(absltest.TestCase):
 
 class LLMCompareFnPostProcessTest(absltest.TestCase):
     def test_cmp_post_process_add_cmd(self):
-        def add_fn(rows: Sequence[tuple[LLMFnOutputRowView, LLMFnOutputRowView]]) -> Sequence[int]:
+        def add_fn(rows: Sequence[Tuple[LLMFnOutputRowView, LLMFnOutputRowView]]) -> Sequence[int]:
             return [x.result_value() + y.result_value() for x, y in rows]
 
         cmd = LLMCompareFnPostProcessAddCommand(name="sum", fn=add_fn)

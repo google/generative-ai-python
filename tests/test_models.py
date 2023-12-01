@@ -13,12 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import copy
-from collections.abc import Iterable
 import datetime
 import dataclasses
 import pathlib
 import pytz
-from typing import Any, Union
+from typing import Any, Union, Iterable
 import unittest
 from unittest import mock
 

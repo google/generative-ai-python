@@ -14,7 +14,7 @@
 # limitations under the License.
 from __future__ import annotations
 
-from collections.abc import Mapping
+from typing import Mapping
 
 from google.ai import generativelanguage as glm
 from google.generativeai import string_utils
@@ -190,7 +190,7 @@ SafetySettingOptions = Union[EasySafetySetting, Iterable[LooseSafetySettingDict]
 
 def normalize_safety_settings(
     settings: SafetySettingOptions,
-) -> list[SafetySettingDict] | None:
+) -> List[SafetySettingDict] | None:
     if settings is None:
         return None
     if isinstance(settings, Mapping):

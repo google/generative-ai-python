@@ -15,7 +15,7 @@
 """Unittest for llm_function."""
 from __future__ import annotations
 
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence, Tuple
 
 from absl.testing import absltest
 from google.generativeai.notebook.lib import llm_function
@@ -49,7 +49,7 @@ class _MockModel(model_lib.AbstractModel):
 class _MockInputsSource(llmfn_inputs_source.LLMFnInputsSource):
     def _to_normalized_inputs_impl(
         self,
-    ) -> tuple[Sequence[Mapping[str, str]], Callable[[], None]]:
+    ) -> Tuple[Sequence[Mapping[str, str]], Callable[[], None]]:
         return [
             {"word_one": "apple", "word_two": "banana"},
             {"word_one": "australia", "word_two": "brazil"},
@@ -61,7 +61,7 @@ class LLMFunctionBasicTest(absltest.TestCase):
 
     def _test_is_callable(
         self,
-        llm_fn: Callable[[Sequence[tuple[str, str]] | None], LLMFnOutputs],
+        llm_fn: Callable[[Sequence[Tuple[str, str]] | None], LLMFnOutputs],
     ) -> LLMFnOutputs:
         return llm_fn(None)
 
@@ -393,7 +393,7 @@ class LLMCompareFunctionTest(absltest.TestCase):
 
         # Batch-based comparison function for post-processing.
         def _sum_of_lengths(
-            rows: Sequence[tuple[Mapping[str, Any], Mapping[str, Any]]]
+            rows: Sequence[Tuple[Mapping[str, Any], Mapping[str, Any]]]
         ) -> Sequence[int]:
             return [lhs["length"] + rhs["length"] for lhs, rhs in rows]
 
