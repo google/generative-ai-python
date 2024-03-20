@@ -2,6 +2,7 @@ import collections
 from collections.abc import Iterable
 import copy
 import pathlib
+from typing import Any
 import textwrap
 import unittest.mock
 from absl.testing import absltest
@@ -43,6 +44,7 @@ class CUJTests(parameterized.TestCase):
         @add_client_method
         def generate_content(
             request: glm.GenerateContentRequest,
+            **kwargs,
         ) -> glm.GenerateContentResponse:
             self.assertIsInstance(request, glm.GenerateContentRequest)
             self.observed_requests.append(request)
@@ -52,6 +54,7 @@ class CUJTests(parameterized.TestCase):
         @add_client_method
         def stream_generate_content(
             request: glm.GetModelRequest,
+            **kwargs,
         ) -> Iterable[glm.GenerateContentResponse]:
             self.observed_requests.append(request)
             response = self.responses["stream_generate_content"].pop(0)
@@ -60,6 +63,7 @@ class CUJTests(parameterized.TestCase):
         @add_client_method
         def count_tokens(
             request: glm.CountTokensRequest,
+            **kwargs,
         ) -> Iterable[glm.GenerateContentResponse]:
             self.observed_requests.append(request)
             response = self.responses["count_tokens"].pop(0)
@@ -637,6 +641,11 @@ class CUJTests(parameterized.TestCase):
             generative_models.ChatSession.send_message,
             generative_models.ChatSession.send_message_async,
         ],
+        [
+            "ChatSession._handle_afc",
+            generative_models.ChatSession._handle_afc,
+            generative_models.ChatSession._handle_afc_async,
+        ],
     )
     def test_async_code_match(self, obj, aobj):
         import inspect
@@ -875,8 +884,9 @@ class CUJTests(parameterized.TestCase):
             ChatSession(
                 model=genai.GenerativeModel(
                     model_name='models/gemini-pro',
-                    generation_config={}.
-                    safety_settings={}
+                    generation_config={},
+                    safety_settings={},
+                    tools=None,
                 ),
                 history=[glm.Content({'parts': [{'text': 'I really like fantasy books.'}], 'role': 'user'}), glm.Content({'parts': [{'text': 'first'}], 'role': 'model'}), glm.Content({'parts': [{'text': 'I also like this image.'}, {'inline_data': {'data': 'iVBORw0KGgoA...AAElFTkSuQmCC', 'mime_type': 'image/png'}}], 'role': 'user'}), glm.Content({'parts': [{'text': 'second'}], 'role': 'model'}), glm.Content({'parts': [{'text': 'What things do I like?.'}], 'role': 'user'}), glm.Content({'parts': [{'text': 'third'}], 'role': 'model'})]
             )"""
@@ -901,8 +911,9 @@ class CUJTests(parameterized.TestCase):
             ChatSession(
                 model=genai.GenerativeModel(
                     model_name='models/gemini-pro',
-                    generation_config={}.
-                    safety_settings={}
+                    generation_config={},
+                    safety_settings={},
+                    tools=None,
                 ),
                 history=[glm.Content({'parts': [{'text': 'I really like fantasy books.'}], 'role': 'user'}), <STREAMING IN PROGRESS>]
             )"""
@@ -943,13 +954,25 @@ class CUJTests(parameterized.TestCase):
             ChatSession(
                 model=genai.GenerativeModel(
                     model_name='models/gemini-pro',
-                    generation_config={}.
-                    safety_settings={}
+                    generation_config={},
+                    safety_settings={},
+                    tools=None,
                 ),
                 history=[glm.Content({'parts': [{'text': 'I really like fantasy books.'}], 'role': 'user'}), <STREAMING ERROR>]
             )"""
         )
         self.assertEqual(expected, result)
+
+    def test_count_tokens_called_with_request_options(self):
+        self.client.count_tokens = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        self.responses["count_tokens"] = [glm.CountTokensResponse(total_tokens=7)]
+        model = generative_models.GenerativeModel("gemini-pro-vision")
+        model.count_tokens([{"role": "user", "parts": ["hello"]}], request_options=request_options)
+
+        self.client.count_tokens.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":

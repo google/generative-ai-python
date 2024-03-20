@@ -12,6 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# pytype: skip-file
 r"""Api reference docs generation script, using tensorflow_docs
 
 This script generates API reference docs for the reference doc generator.

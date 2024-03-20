@@ -14,6 +14,7 @@
 # limitations under the License.
 import copy
 import math
+from typing import Any
 import unittest
 import unittest.mock as mock
 
@@ -44,6 +45,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def embed_content(
             request: glm.EmbedContentRequest,
+            **kwargs,
         ) -> glm.EmbedContentResponse:
             self.observed_requests.append(request)
             return glm.EmbedContentResponse(embedding=glm.ContentEmbedding(values=[1, 2, 3]))
@@ -51,6 +53,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def batch_embed_contents(
             request: glm.BatchEmbedContentsRequest,
+            **kwargs,
         ) -> glm.BatchEmbedContentsResponse:
             self.observed_requests.append(request)
             return glm.BatchEmbedContentsResponse(
@@ -120,6 +123,21 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
             await embedding.embed_content_async(
                 model=DEFAULT_EMB_MODEL, content=text, task_type="unspecified", title="Exploring AI"
             )
+
+    async def test_embed_content_called_with_request_options(self):
+        self.client.embed_content = unittest.mock.AsyncMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            text = "What are you?"
+            emb = await embedding.embed_content_async(
+                model=DEFAULT_EMB_MODEL, content=text, request_options=request_options
+            )
+        except AttributeError:
+            pass
+
+        self.client.embed_content.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":

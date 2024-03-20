@@ -17,7 +17,9 @@ import collections
 import sys
 from collections.abc import Iterable
 import os
+from typing import Any
 import unittest
+
 
 from google.generativeai import client as client_lib
 from google.generativeai import generative_models
@@ -48,6 +50,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def generate_content(
             request: glm.GenerateContentRequest,
+            **kwargs,
         ) -> glm.GenerateContentResponse:
             self.assertIsInstance(request, glm.GenerateContentRequest)
             self.observed_requests.append(request)
@@ -57,6 +60,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def stream_generate_content(
             request: glm.GetModelRequest,
+            **kwargs,
         ) -> Iterable[glm.GenerateContentResponse]:
             self.observed_requests.append(request)
             response = self.responses["stream_generate_content"].pop(0)
@@ -65,6 +69,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def count_tokens(
             request: glm.CountTokensRequest,
+            **kwargs,
         ) -> Iterable[glm.GenerateContentResponse]:
             self.observed_requests.append(request)
             response = self.responses["count_tokens"].pop(0)
@@ -116,6 +121,46 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         model = generative_models.GenerativeModel("gemini-pro-vision")
         response = await model.count_tokens_async(contents)
         self.assertEqual(type(response).to_dict(response), {"total_tokens": 7})
+
+    async def test_stream_generate_content_called_with_request_options(self):
+        self.client.stream_generate_content = unittest.mock.AsyncMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        model = generative_models.GenerativeModel()
+
+        try:
+            response = await model.generate_content_async(
+                contents=[""],
+                stream=True,
+                request_options=request_options,
+            )
+        except StopAsyncIteration:
+            pass
+
+        self.client.stream_generate_content.assert_called_once_with(request, **request_options)
+
+    async def test_generate_content_called_with_request_options(self):
+        self.client.generate_content = unittest.mock.AsyncMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        model = generative_models.GenerativeModel()
+        response = await model.generate_content_async(
+            contents=[""], request_options=request_options
+        )
+
+        self.client.generate_content.assert_called_once_with(request, **request_options)
+
+    async def test_count_tokens_called_with_request_options(self):
+        self.client.count_tokens = unittest.mock.AsyncMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        model = generative_models.GenerativeModel("gemini-pro-vision")
+        response = await model.count_tokens_async(contents=[], request_options=request_options)
+
+        self.client.count_tokens.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":

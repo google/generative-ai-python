@@ -15,6 +15,7 @@
 import collections
 import copy
 import math
+from typing import Any
 import unittest
 import unittest.mock as mock
 
@@ -44,6 +45,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def create_corpus(
             request: glm.CreateCorpusRequest,
+            **kwargs,
         ) -> glm.Corpus:
             self.observed_requests.append(request)
             return glm.Corpus(
@@ -56,6 +58,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def get_corpus(
             request: glm.GetCorpusRequest,
+            **kwargs,
         ) -> glm.Corpus:
             self.observed_requests.append(request)
             return glm.Corpus(
@@ -66,7 +69,10 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
             )
 
         @add_client_method
-        async def update_corpus(request: glm.UpdateCorpusRequest) -> glm.Corpus:
+        async def update_corpus(
+            request: glm.UpdateCorpusRequest,
+            **kwargs,
+        ) -> glm.Corpus:
             self.observed_requests.append(request)
             return glm.Corpus(
                 name="corpora/demo-corpus",
@@ -76,7 +82,10 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
             )
 
         @add_client_method
-        async def list_corpora(request: glm.ListCorporaRequest) -> glm.ListCorporaResponse:
+        async def list_corpora(
+            request: glm.ListCorporaRequest,
+            **kwargs,
+        ) -> glm.ListCorporaResponse:
             self.observed_requests.append(request)
 
             async def results():
@@ -98,6 +107,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def query_corpus(
             request: glm.QueryCorpusRequest,
+            **kwargs,
         ) -> glm.QueryCorpusResponse:
             self.observed_requests.append(request)
             return glm.QueryCorpusResponse(
@@ -117,12 +127,16 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
             )
 
         @add_client_method
-        async def delete_corpus(request: glm.DeleteCorpusRequest) -> None:
+        async def delete_corpus(
+            request: glm.DeleteCorpusRequest,
+            **kwargs,
+        ) -> None:
             self.observed_requests.append(request)
 
         @add_client_method
         async def create_document(
             request: glm.CreateDocumentRequest,
+            **kwargs,
         ) -> retriever_service.Document:
             self.observed_requests.append(request)
             return glm.Document(
@@ -135,6 +149,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def get_document(
             request: glm.GetDocumentRequest,
+            **kwargs,
         ) -> retriever_service.Document:
             self.observed_requests.append(request)
             return glm.Document(
@@ -147,6 +162,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def update_document(
             request: glm.UpdateDocumentRequest,
+            **kwargs,
         ) -> glm.Document:
             self.observed_requests.append(request)
             return glm.Document(
@@ -159,6 +175,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def list_documents(
             request: glm.ListDocumentsRequest,
+            **kwargs,
         ) -> glm.ListDocumentsResponse:
             self.observed_requests.append(request)
 
@@ -181,12 +198,14 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def delete_document(
             request: glm.DeleteDocumentRequest,
+            **kwargs,
         ) -> None:
             self.observed_requests.append(request)
 
         @add_client_method
         async def query_document(
             request: glm.QueryDocumentRequest,
+            **kwargs,
         ) -> glm.QueryDocumentResponse:
             self.observed_requests.append(request)
             return glm.QueryDocumentResponse(
@@ -208,6 +227,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def create_chunk(
             request: glm.CreateChunkRequest,
+            **kwargs,
         ) -> retriever_service.Chunk:
             self.observed_requests.append(request)
             return glm.Chunk(
@@ -220,6 +240,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def batch_create_chunks(
             request: glm.BatchCreateChunksRequest,
+            **kwargs,
         ) -> glm.BatchCreateChunksResponse:
             self.observed_requests.append(request)
             return glm.BatchCreateChunksResponse(
@@ -242,6 +263,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def get_chunk(
             request: glm.GetChunkRequest,
+            **kwargs,
         ) -> retriever_service.Chunk:
             self.observed_requests.append(request)
             return glm.Chunk(
@@ -254,6 +276,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def list_chunks(
             request: glm.ListChunksRequest,
+            **kwargs,
         ) -> glm.ListChunksResponse:
             self.observed_requests.append(request)
 
@@ -274,7 +297,10 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
             return results()
 
         @add_client_method
-        async def update_chunk(request: glm.UpdateChunkRequest) -> glm.Chunk:
+        async def update_chunk(
+            request: glm.UpdateChunkRequest,
+            **kwargs,
+        ) -> glm.Chunk:
             self.observed_requests.append(request)
             return glm.Chunk(
                 name="corpora/demo-corpus/documents/dem-doc/chunks/demo-chunk",
@@ -286,6 +312,7 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def batch_update_chunks(
             request: glm.BatchUpdateChunksRequest,
+            **kwargs,
         ) -> glm.BatchUpdateChunksResponse:
             self.observed_requests.append(request)
             return glm.BatchUpdateChunksResponse(
@@ -308,12 +335,14 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         @add_client_method
         async def delete_chunk(
             request: glm.DeleteChunkRequest,
+            **kwargs,
         ) -> None:
             self.observed_requests.append(request)
 
         @add_client_method
         async def batch_delete_chunks(
             request: glm.BatchDeleteChunksRequest,
+            **kwargs,
         ) -> None:
             self.observed_requests.append(request)
 
@@ -601,6 +630,31 @@ class AsyncTests(parameterized.TestCase, unittest.IsolatedAsyncioTestCase):
         )
         delete_request = await demo_document.batch_delete_chunks_async(chunks=[x.name, y.name])
         self.assertIsInstance(self.observed_requests[-1], glm.BatchDeleteChunksRequest)
+
+    async def test_get_corpus_called_with_request_options(self):
+        self.client.get_corpus = unittest.mock.AsyncMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            x = await retriever.create_corpus_async(name="demo-corpus")
+            await retriever.get_corpus_async(name=x.name, request_options=request_options)
+        except AttributeError:
+            pass
+
+        self.client.get_corpus.assert_called_once_with(request, **request_options)
+
+    async def test_update_corpus_called_with_request_options(self):
+        self.client.update_corpus = unittest.mock.AsyncMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        demo_corpus = await retriever.create_corpus_async(name="demo-corpus")
+        await demo_corpus.update_async(
+            updates={"display_name": "demo_corpus_1"}, request_options=request_options
+        )
+
+        self.client.update_corpus.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":

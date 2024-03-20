@@ -17,7 +17,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Iterable, Sequence
 import itertools
-from typing import Iterable, overload, TypeVar
+from typing import Any, Iterable, overload, TypeVar
 
 import google.ai.generativelanguage as glm
 
@@ -141,6 +141,7 @@ def generate_text(
     safety_settings: safety_types.SafetySettingOptions | None = None,
     stop_sequences: str | Iterable[str] | None = None,
     client: glm.TextServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.Completion:
     """Calls the API and returns a `types.Completion` containing the response.
 
@@ -181,6 +182,7 @@ def generate_text(
           If specified, the API will stop at the first appearance of a stop
           sequence. The stop sequence will not be included as part of the response.
         client: If you're not relying on a default client, you pass a `glm.TextServiceClient` instead.
+        request_options: Options for the request.
 
     Returns:
         A `types.Completion` containing the model's text completion response.
@@ -197,7 +199,7 @@ def generate_text(
         stop_sequences=stop_sequences,
     )
 
-    return _generate_response(client=client, request=request)
+    return _generate_response(client=client, request=request, request_options=request_options)
 
 
 @string_utils.prettyprint
@@ -213,7 +215,9 @@ class Completion(text_types.Completion):
 
 
 def _generate_response(
-    request: glm.GenerateTextRequest, client: glm.TextServiceClient = None
+    request: glm.GenerateTextRequest,
+    client: glm.TextServiceClient = None,
+    request_options: dict[str, Any] | None = None,
 ) -> Completion:
     """
     Generates a response using the provided `glm.GenerateTextRequest` and client.
@@ -222,14 +226,18 @@ def _generate_response(
         request: The text generation request.
         client: The client to use for text generation. Defaults to None, in which
             case the default text client is used.
+        request_options: Options for the request.
 
     Returns:
         `Completion`: A `Completion` object with the generated text and response information.
     """
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_text_client()
 
-    response = client.generate_text(request)
+    response = client.generate_text(request, **request_options)
     response = type(response).to_dict(response)
 
     response["filters"] = safety_types.convert_filters_to_enums(response["filters"])
@@ -245,14 +253,19 @@ def count_text_tokens(
     model: model_types.AnyModelNameOptions,
     prompt: str,
     client: glm.TextServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.TokenCount:
     base_model = models.get_base_model_name(model)
+
+    if request_options is None:
+        request_options = {}
 
     if client is None:
         client = get_default_text_client()
 
     result = client.count_text_tokens(
-        glm.CountTextTokensRequest(model=base_model, prompt={"text": prompt})
+        glm.CountTextTokensRequest(model=base_model, prompt={"text": prompt}),
+        **request_options,
     )
 
     return type(result).to_dict(result)
@@ -263,6 +276,7 @@ def generate_embeddings(
     model: model_types.BaseModelNameOptions,
     text: str,
     client: glm.TextServiceClient = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.EmbeddingDict: ...
 
 
@@ -271,6 +285,7 @@ def generate_embeddings(
     model: model_types.BaseModelNameOptions,
     text: Sequence[str],
     client: glm.TextServiceClient = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.BatchEmbeddingDict: ...
 
 
@@ -278,6 +293,7 @@ def generate_embeddings(
     model: model_types.BaseModelNameOptions,
     text: str | Sequence[str],
     client: glm.TextServiceClient = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.EmbeddingDict | text_types.BatchEmbeddingDict:
     """Calls the API to create an embedding for the text passed in.
 
@@ -289,17 +305,25 @@ def generate_embeddings(
 
         client: If you're not relying on a default client, you pass a `glm.TextServiceClient` instead.
 
+        request_options: Options for the request.
+
     Returns:
         Dictionary containing the embedding (list of float values) for the input text.
     """
     model = model_types.make_model_name(model)
+
+    if request_options is None:
+        request_options = {}
 
     if client is None:
         client = get_default_text_client()
 
     if isinstance(text, str):
         embedding_request = glm.EmbedTextRequest(model=model, text=text)
-        embedding_response = client.embed_text(embedding_request)
+        embedding_response = client.embed_text(
+            embedding_request,
+            **request_options,
+        )
         embedding_dict = type(embedding_response).to_dict(embedding_response)
         embedding_dict["embedding"] = embedding_dict["embedding"]["value"]
     else:
@@ -307,7 +331,10 @@ def generate_embeddings(
         for batch in _batched(text, EMBEDDING_MAX_BATCH_SIZE):
             # TODO(markdaoust): This could use an option for returning an iterator or wait-bar.
             embedding_request = glm.BatchEmbedTextRequest(model=model, texts=batch)
-            embedding_response = client.batch_embed_text(embedding_request)
+            embedding_response = client.batch_embed_text(
+                embedding_request,
+                **request_options,
+            )
             embedding_dict = type(embedding_response).to_dict(embedding_response)
             result["embedding"].extend(e["value"] for e in embedding_dict["embeddings"])
         return result

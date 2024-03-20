@@ -1,5 +1,6 @@
 [tool.pytype]
 inputs = ['google', 'tests']
+exclude = ['build']
 
 [tool.black]
 line-length = 100

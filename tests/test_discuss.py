@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import copy
+from typing import Any
 
 import unittest.mock
 
@@ -47,6 +48,7 @@ class UnitTests(parameterized.TestCase):
 
         def fake_generate_message(
             request: glm.GenerateMessageRequest,
+            **kwargs,
         ) -> glm.GenerateMessageResponse:
             self.observed_request = request
             response = copy.copy(self.mock_response)
@@ -363,6 +365,18 @@ class UnitTests(parameterized.TestCase):
                 "Me too!",
             ],
         )
+
+    def test_generate_message_called_with_request_options(self):
+        self.client.generate_message = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            genai.chat(**{"context": "You are a cat."}, request_options=request_options)
+        except AttributeError:
+            pass
+
+        self.client.generate_message.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":

@@ -45,9 +45,10 @@ dependencies = [
     "google-ai-generativelanguage==0.4.0",
     "google-auth>=2.15.0",  # 2.15 adds API key auth support
     "google-api-core",
-    "typing-extensions",
     "protobuf",
+    "pydantic",
     "tqdm",
+    "typing-extensions",
 ]
 
 extras_require = {

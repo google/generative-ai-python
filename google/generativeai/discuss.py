@@ -18,7 +18,7 @@ import dataclasses
 import sys
 import textwrap
 
-from typing import Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Optional, Union
 
 import google.ai.generativelanguage as glm
 
@@ -316,6 +316,7 @@ def chat(
     top_k: float | None = None,
     prompt: discuss_types.MessagePromptOptions | None = None,
     client: glm.DiscussServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> discuss_types.ChatResponse:
     """Calls the API and returns a `types.ChatResponse` containing the response.
 
@@ -382,6 +383,7 @@ def chat(
             setting `context`/`examples`/`messages`, but not both.
         client: If you're not relying on the default client, you pass a
             `glm.DiscussServiceClient` instead.
+        request_options: Options for the request.
 
     Returns:
         A `types.ChatResponse` containing the model's reply.
@@ -398,7 +400,7 @@ def chat(
         prompt=prompt,
     )
 
-    return _generate_response(client=client, request=request)
+    return _generate_response(client=client, request=request, request_options=request_options)
 
 
 @string_utils.set_doc(chat.__doc__)
@@ -414,6 +416,7 @@ async def chat_async(
     top_k: float | None = None,
     prompt: discuss_types.MessagePromptOptions | None = None,
     client: glm.DiscussServiceAsyncClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> discuss_types.ChatResponse:
     request = _make_generate_message_request(
         model=model,
@@ -427,7 +430,9 @@ async def chat_async(
         prompt=prompt,
     )
 
-    return await _generate_response_async(client=client, request=request)
+    return await _generate_response_async(
+        client=client, request=request, request_options=request_options
+    )
 
 
 if (sys.version_info.major, sys.version_info.minor) >= (3, 10):
@@ -461,7 +466,11 @@ class ChatResponse(discuss_types.ChatResponse):
         self.messages[-1] = message
 
     @string_utils.set_doc(discuss_types.ChatResponse.reply.__doc__)
-    def reply(self, message: discuss_types.MessageOptions) -> discuss_types.ChatResponse:
+    def reply(
+        self,
+        message: discuss_types.MessageOptions,
+        request_options: dict[str, Any] | None = None,
+    ) -> discuss_types.ChatResponse:
         if isinstance(self._client, glm.DiscussServiceAsyncClient):
             raise TypeError(f"reply can't be called on an async client, use reply_async instead.")
         if self.last is None:
@@ -477,7 +486,9 @@ class ChatResponse(discuss_types.ChatResponse):
         request["messages"] = list(request["messages"])
         request["messages"].append(_make_message(message))
         request = _make_generate_message_request(**request)
-        return _generate_response(request=request, client=self._client)
+        return _generate_response(
+            request=request, client=self._client, request_options=request_options
+        )
 
     @string_utils.set_doc(discuss_types.ChatResponse.reply.__doc__)
     async def reply_async(
@@ -526,11 +537,15 @@ def _build_chat_response(
 def _generate_response(
     request: glm.GenerateMessageRequest,
     client: glm.DiscussServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> ChatResponse:
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_discuss_client()
 
-    response = client.generate_message(request)
+    response = client.generate_message(request, **request_options)
 
     return _build_chat_response(request, response, client)
 
@@ -538,11 +553,15 @@ def _generate_response(
 async def _generate_response_async(
     request: glm.GenerateMessageRequest,
     client: glm.DiscussServiceAsyncClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> ChatResponse:
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_discuss_async_client()
 
-    response = await client.generate_message(request)
+    response = await client.generate_message(request, **request_options)
 
     return _build_chat_response(request, response, client)
 
@@ -555,13 +574,17 @@ def count_message_tokens(
     messages: discuss_types.MessagesOptions | None = None,
     model: model_types.AnyModelNameOptions = DEFAULT_DISCUSS_MODEL,
     client: glm.DiscussServiceAsyncClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> discuss_types.TokenCount:
     model = model_types.make_model_name(model)
     prompt = _make_message_prompt(prompt, context=context, examples=examples, messages=messages)
 
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_discuss_client()
 
-    result = client.count_message_tokens(model=model, prompt=prompt)
+    result = client.count_message_tokens(model=model, prompt=prompt, **request_options)
 
     return type(result).to_dict(result)

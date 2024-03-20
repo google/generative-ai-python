@@ -251,3 +251,11 @@ def get_default_retriever_client() -> glm.RetrieverClient:
 
 def get_default_retriever_async_client() -> glm.RetrieverAsyncClient:
     return _client_manager.get_default_client("retriever_async")
+
+
+def get_dafault_permission_client() -> glm.PermissionServiceClient:
+    return _client_manager.get_default_client("permission")
+
+
+def get_dafault_permission_async_client() -> glm.PermissionServiceAsyncClient:
+    return _client_manager.get_default_client("permission_async")

@@ -64,7 +64,10 @@ class UnitTests(parameterized.TestCase):
 
         @add_client_method
         def get_tuned_model(
-            request: Union[glm.GetTunedModelRequest, None] = None, *, name=None
+            request: Union[glm.GetTunedModelRequest, None] = None,
+            *,
+            name=None,
+            **kwargs,
         ) -> glm.TunedModel:
             if request is None:
                 request = glm.GetTunedModelRequest(name=name)
@@ -79,6 +82,7 @@ class UnitTests(parameterized.TestCase):
             *,
             page_size=None,
             page_token=None,
+            **kwargs,
         ) -> glm.ListModelsResponse:
             if request is None:
                 request = glm.ListModelsRequest(page_size=page_size, page_token=page_token)
@@ -93,6 +97,7 @@ class UnitTests(parameterized.TestCase):
             *,
             page_size=None,
             page_token=None,
+            **kwargs,
         ) -> Iterable[glm.TunedModel]:
             if request is None:
                 request = glm.ListTunedModelsRequest(page_size=page_size, page_token=page_token)
@@ -102,7 +107,10 @@ class UnitTests(parameterized.TestCase):
             return (item for item in response)
 
         @add_client_method
-        def update_tuned_model(request: glm.UpdateTunedModelRequest) -> glm.TunedModel:
+        def update_tuned_model(
+            request: glm.UpdateTunedModelRequest,
+            **kwargs,
+        ) -> glm.TunedModel:
             self.observed_requests.append(request)
             response = self.responses.get("update_tuned_model", None)
             if response is None:
@@ -117,7 +125,10 @@ class UnitTests(parameterized.TestCase):
             return response
 
         @add_client_method
-        def create_tuned_model(request):
+        def create_tuned_model(
+            request,
+            **kwargs,
+        ):
             request = glm.CreateTunedModelRequest(request)
             self.observed_requests.append(request)
             return self.responses["create_tuned_model"]
@@ -443,6 +454,93 @@ class UnitTests(parameterized.TestCase):
             )
         )
         self.assertEqual(expect, ds)
+
+    def test_get_model_called_with_request_options(self):
+        self.client.get_model = unittest.mock.MagicMock()
+        name = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            models.get_model(name="models/", request_options=request_options)
+        except AttributeError:
+            pass
+
+        self.client.get_model.assert_called_once_with(name=name, **request_options)
+
+    def test_get_tuned_model_called_with_request_options(self):
+        self.client.get_tuned_model = unittest.mock.MagicMock()
+        name = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            models.get_model(name="tunedModels/", request_options=request_options)
+        except KeyError:
+            pass
+
+        self.client.get_tuned_model.assert_called_once_with(name=name, **request_options)
+
+    def test_list_models_called_with_request_options(self):
+        self.client.list_models = unittest.mock.MagicMock()
+        page_size = unittest.mock.ANY
+        request_options = {"timeout": 120}
+        list(models.list_models(request_options=request_options))
+
+        self.client.list_models.assert_called_once_with(page_size=page_size, **request_options)
+
+    def test_list_tuned_models_called_with_request_options(self):
+        self.client.list_tuned_models = unittest.mock.MagicMock()
+        page_size = unittest.mock.ANY
+        request_options = {"timeout": 120}
+        list(models.list_tuned_models(request_options=request_options))
+
+        self.client.list_tuned_models.assert_called_once_with(
+            page_size=page_size, **request_options
+        )
+
+    def test_update_tuned_model_called_with_request_options(self):
+        self.client.update_tuned_model = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+        self.responses["get_tuned_model"] = glm.TunedModel(name="tunedModels/")
+
+        try:
+            models.update_tuned_model(
+                tuned_model="tunedModels/",
+                updates=dict(),
+                request_options=request_options,
+            )
+        except KeyError:
+            pass
+
+        self.client.update_tuned_model.assert_called_once_with(request, **request_options)
+
+    def test_delete_tuned_model_called_with_request_options(self):
+        self.client.delete_tuned_model = unittest.mock.MagicMock()
+        name = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        models.delete_tuned_model("tunedModels/", request_options=request_options)
+        self.client.delete_tuned_model.assert_called_once_with(name=name, **request_options)
+
+    def test_create_tuned_model_called_with_request_options(self):
+        self.client.create_tuned_model = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            models.create_tuned_model(
+                source_model="models/sneaky-fox-001",
+                training_data=[
+                    ("in", "out"),
+                    {"text_input": "in", "output": "out"},
+                    glm.TuningExample(text_input="in", output="out"),
+                ],
+                request_options=request_options,
+            )
+        except KeyError:
+            pass
+
+        self.client.create_tuned_model.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":
