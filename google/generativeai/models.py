@@ -28,7 +28,10 @@ from google.generativeai.utils import flatten_update_paths
 
 
 def get_model(
-    name: model_types.AnyModelNameOptions, *, client=None
+    name: model_types.AnyModelNameOptions,
+    *,
+    client=None,
+    request_options: dict[str, Any] | None = None,
 ) -> model_types.Model | model_types.TunedModel:
     """Given a model name, fetch the `types.Model` or `types.TunedModel` object.
 
@@ -41,20 +44,26 @@ def get_model(
     Args:
         name: The name of the model to fetch.
         client: The client to use.
+        request_options: Options for the request.
 
     Returns:
         A `types.Model` or `types.TunedModel` object.
     """
     name = model_types.make_model_name(name)
     if name.startswith("models/"):
-        return get_base_model(name, client=client)
+        return get_base_model(name, client=client, request_options=request_options)
     elif name.startswith("tunedModels/"):
-        return get_tuned_model(name, client=client)
+        return get_tuned_model(name, client=client, request_options=request_options)
     else:
         raise ValueError("Model names must start with `models/` or `tunedModels/`")
 
 
-def get_base_model(name: model_types.BaseModelNameOptions, *, client=None) -> model_types.Model:
+def get_base_model(
+    name: model_types.BaseModelNameOptions,
+    *,
+    client=None,
+    request_options: dict[str, Any] | None = None,
+) -> model_types.Model:
     """Get the `types.Model` for the given base model name.
 
     ```
@@ -66,10 +75,14 @@ def get_base_model(name: model_types.BaseModelNameOptions, *, client=None) -> mo
     Args:
         name: The name of the model to fetch.
         client: The client to use.
+        request_options: Options for the request.
 
     Returns:
         A `types.Model`.
     """
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_model_client()
 
@@ -77,13 +90,16 @@ def get_base_model(name: model_types.BaseModelNameOptions, *, client=None) -> mo
     if not name.startswith("models/"):
         raise ValueError(f"Base model names must start with `models/`, got: {name}")
 
-    result = client.get_model(name=name)
+    result = client.get_model(name=name, **request_options)
     result = type(result).to_dict(result)
     return model_types.Model(**result)
 
 
 def get_tuned_model(
-    name: model_types.TunedModelNameOptions, *, client=None
+    name: model_types.TunedModelNameOptions,
+    *,
+    client=None,
+    request_options: dict[str, Any] | None = None,
 ) -> model_types.TunedModel:
     """Get the `types.TunedModel` for the given tuned model name.
 
@@ -96,10 +112,14 @@ def get_tuned_model(
     Args:
         name: The name of the model to fetch.
         client: The client to use.
+        request_options: Options for the request.
 
     Returns:
         A `types.TunedModel`.
     """
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_model_client()
 
@@ -108,7 +128,7 @@ def get_tuned_model(
     if not name.startswith("tunedModels/"):
         raise ValueError("Tuned model names must start with `tunedModels/`")
 
-    result = client.get_tuned_model(name=name)
+    result = client.get_tuned_model(name=name, **request_options)
 
     return model_types.decode_tuned_model(result)
 
@@ -142,6 +162,7 @@ def list_models(
     *,
     page_size: int | None = 50,
     client: glm.ModelServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> model_types.ModelsIterable:
     """Lists available models.
 
@@ -154,15 +175,19 @@ def list_models(
     Args:
         page_size: How many `types.Models` to fetch per page (api call).
         client: You may pass a `glm.ModelServiceClient` instead of using the default client.
+        request_options: Options for the request.
 
     Yields:
         `types.Model` objects.
 
     """
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_model_client()
 
-    for model in client.list_models(page_size=page_size):
+    for model in client.list_models(page_size=page_size, **request_options):
         model = type(model).to_dict(model)
         yield model_types.Model(**model)
 
@@ -171,6 +196,7 @@ def list_tuned_models(
     *,
     page_size: int | None = 50,
     client: glm.ModelServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> model_types.TunedModelsIterable:
     """Lists available models.
 
@@ -183,14 +209,21 @@ def list_tuned_models(
     Args:
         page_size: How many `types.Models` to fetch per page (api call).
         client: You may pass a `glm.ModelServiceClient` instead of using the default client.
+        request_options: Options for the request.
 
     Yields:
         `types.TunedModel` objects.
     """
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_model_client()
 
-    for model in client.list_tuned_models(page_size=page_size):
+    for model in client.list_tuned_models(
+        page_size=page_size,
+        **request_options,
+    ):
         model = type(model).to_dict(model)
         yield model_types.decode_tuned_model(model)
 
@@ -211,6 +244,7 @@ def create_tuned_model(
     input_key: str = "text_input",
     output_key: str = "output",
     client: glm.ModelServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> operations.CreateTunedModelOperation:
     """Launches a tuning job to create a TunedModel.
 
@@ -262,10 +296,13 @@ def create_tuned_model(
         batch_size: The number of examples to use in each training batch.
         learning_rate: The step size multiplier for the gradient updates.
         client: Which client to use.
+        request_options: Options for the request.
 
     Returns:
         A [`google.api_core.operation.Operation`](https://googleapis.dev/python/google-api-core/latest/operation.html)
     """
+    if request_options is None:
+        request_options = {}
 
     if client is None:
         client = get_default_model_client()
@@ -307,7 +344,9 @@ def create_tuned_model(
         top_k=top_k,
         tuning_task=tuning_task,
     )
-    operation = client.create_tuned_model(dict(tuned_model_id=id, tuned_model=tuned_model))
+    operation = client.create_tuned_model(
+        dict(tuned_model_id=id, tuned_model=tuned_model), **request_options
+    )
 
     return operations.CreateTunedModelOperation.from_core_operation(operation)
 
@@ -318,6 +357,7 @@ def update_tuned_model(
     updates: None = None,
     *,
     client: glm.ModelServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> model_types.TunedModel:
     pass
 
@@ -328,6 +368,7 @@ def update_tuned_model(
     updates: dict[str, Any],
     *,
     client: glm.ModelServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> model_types.TunedModel:
     pass
 
@@ -337,8 +378,12 @@ def update_tuned_model(
     updates: dict[str, Any] | None = None,
     *,
     client: glm.ModelServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> model_types.TunedModel:
     """Push updates to the tuned model. Only certain attributes are updatable."""
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_model_client()
 
@@ -350,7 +395,7 @@ def update_tuned_model(
                 "`updates` must be a `dict`.\n"
                 f"got: {type(updates)}"
             )
-        tuned_model = client.get_tuned_model(name=name)
+        tuned_model = client.get_tuned_model(name=name, **request_options)
 
         updates = flatten_update_paths(updates)
         field_mask = field_mask_pb2.FieldMask()
@@ -375,7 +420,8 @@ def update_tuned_model(
         )
 
     result = client.update_tuned_model(
-        glm.UpdateTunedModelRequest(tuned_model=tuned_model, update_mask=field_mask)
+        glm.UpdateTunedModelRequest(tuned_model=tuned_model, update_mask=field_mask),
+        **request_options,
     )
     return model_types.decode_tuned_model(result)
 
@@ -390,9 +436,13 @@ def _apply_update(thing, path, value):
 def delete_tuned_model(
     tuned_model: model_types.TunedModelNameOptions,
     client: glm.ModelServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> None:
+    if request_options is None:
+        request_options = {}
+
     if client is None:
         client = get_default_model_client()
 
     name = model_types.make_model_name(tuned_model)
-    client.delete_tuned_model(name=name)
+    client.delete_tuned_model(name=name, **request_options)

@@ -14,6 +14,7 @@
 # limitations under the License.
 import copy
 import math
+from typing import Any
 import unittest
 import unittest.mock as mock
 
@@ -46,6 +47,7 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def generate_text(
             request: glm.GenerateTextRequest,
+            **kwargs,
         ) -> glm.GenerateTextResponse:
             self.observed_requests.append(request)
             return self.responses["generate_text"]
@@ -53,6 +55,7 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def embed_text(
             request: glm.EmbedTextRequest,
+            **kwargs,
         ) -> glm.EmbedTextResponse:
             self.observed_requests.append(request)
             return self.responses["embed_text"]
@@ -60,6 +63,7 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def batch_embed_text(
             request: glm.EmbedTextRequest,
+            **kwargs,
         ) -> glm.EmbedTextResponse:
             self.observed_requests.append(request)
 
@@ -70,6 +74,7 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def count_text_tokens(
             request: glm.CountTextTokensRequest,
+            **kwargs,
         ) -> glm.CountTextTokensResponse:
             self.observed_requests.append(request)
             return self.responses["count_text_tokens"]
@@ -469,6 +474,66 @@ class UnitTests(parameterized.TestCase):
                 self.observed_requests[0],
                 glm.GetTunedModelRequest(name="tunedModels/bipedal-pangolin-001"),
             )
+
+    def test_count_text_tokens_called_with_request_options(self):
+        self.client.count_text_tokens = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            result = text_service.count_text_tokens(
+                model="models/",
+                prompt="",
+                request_options=request_options,
+            )
+        except AttributeError:
+            pass
+
+        self.client.count_text_tokens.assert_called_once_with(request, **request_options)
+
+    def test_batch_embed_text_called_with_request_options(self):
+        self.client.batch_embed_text = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            result = text_service.generate_embeddings(
+                model="models/",
+                text=["first", "second"],
+                request_options=request_options,
+            )
+        except AttributeError:
+            pass
+
+        self.client.batch_embed_text.assert_called_once_with(request, **request_options)
+
+    def test_embed_text_called_with_request_options(self):
+        self.client.embed_text = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            result = text_service.generate_embeddings(
+                model="models/",
+                text="",
+                request_options=request_options,
+            )
+        except AttributeError:
+            pass
+
+        self.client.embed_text.assert_called_once_with(request, **request_options)
+
+    def test_generate_text_called_with_request_options(self):
+        self.client.generate_text = unittest.mock.MagicMock()
+        request = unittest.mock.ANY
+        request_options = {"timeout": 120}
+
+        try:
+            result = text_service.generate_text(prompt="", request_options=request_options)
+        except AttributeError:
+            pass
+
+        self.client.generate_text.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":

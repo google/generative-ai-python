@@ -1,4 +1,4 @@
-# Google AI Python SDK
+# Google Python SDK for the Gemini API
 
 [![PyPI version](https://badge.fury.io/py/google-generativeai.svg)](https://badge.fury.io/py/google-generativeai)
 ![Python support](https://img.shields.io/pypi/pyversions/google-generativeai)
@@ -26,7 +26,7 @@ cookie_picture = {
 prompt = "Give me a recipe for this:"
 
 response = model.generate_content(
-    content=[prompt, cookie_picture]
+    contents=[prompt, cookie_picture]
 )
 print(response.text)
 ```

@@ -7,7 +7,7 @@ from collections.abc import Iterable, AsyncIterable
 import dataclasses
 import itertools
 import textwrap
-from typing import List, Tuple, TypedDict, Union
+from typing import TypedDict, Union
 
 import google.protobuf.json_format
 import google.api_core.exceptions

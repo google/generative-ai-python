@@ -80,7 +80,9 @@ Use `pytype` (configured in `pyproject.toml`)
 
 ```
 pip install pytype
+touch google/__init__.py   #  https://github.com/google/pytype/issues/464
 pytype
+rm google/__init__.py
 ```
 
 ### Formatting:

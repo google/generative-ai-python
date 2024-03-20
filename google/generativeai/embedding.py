@@ -17,7 +17,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Iterable, Sequence, Mapping
 import itertools
-from typing import Iterable, overload, TypeVar, Union, Mapping
+from typing import Any, Iterable, overload, TypeVar, Union, Mapping
 
 import google.ai.generativelanguage as glm
 
@@ -95,6 +95,7 @@ def embed_content(
     task_type: EmbeddingTaskTypeOptions | None = None,
     title: str | None = None,
     client: glm.GenerativeServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.EmbeddingDict: ...
 
 
@@ -105,6 +106,7 @@ def embed_content(
     task_type: EmbeddingTaskTypeOptions | None = None,
     title: str | None = None,
     client: glm.GenerativeServiceClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.BatchEmbeddingDict: ...
 
 
@@ -114,6 +116,7 @@ def embed_content(
     task_type: EmbeddingTaskTypeOptions | None = None,
     title: str | None = None,
     client: glm.GenerativeServiceClient = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.EmbeddingDict | text_types.BatchEmbeddingDict:
     """Calls the API to create embeddings for content passed in.
 
@@ -132,12 +135,17 @@ def embed_content(
         title:
             An optional title for the text. Only applicable when task_type is
             `RETRIEVAL_DOCUMENT`.
+        request_options:
+            Options for the request.
 
     Return:
         Dictionary containing the embedding (list of float values) for the
         input content.
     """
     model = model_types.make_model_name(model)
+
+    if request_options is None:
+        request_options = {}
 
     if client is None:
         client = get_default_generative_client()
@@ -160,7 +168,10 @@ def embed_content(
         )
         for batch in _batched(requests, EMBEDDING_MAX_BATCH_SIZE):
             embedding_request = glm.BatchEmbedContentsRequest(model=model, requests=batch)
-            embedding_response = client.batch_embed_contents(embedding_request)
+            embedding_response = client.batch_embed_contents(
+                embedding_request,
+                **request_options,
+            )
             embedding_dict = type(embedding_response).to_dict(embedding_response)
             result["embedding"].extend(e["values"] for e in embedding_dict["embeddings"])
         return result
@@ -168,7 +179,10 @@ def embed_content(
         embedding_request = glm.EmbedContentRequest(
             model=model, content=content_types.to_content(content), task_type=task_type, title=title
         )
-        embedding_response = client.embed_content(embedding_request)
+        embedding_response = client.embed_content(
+            embedding_request,
+            **request_options,
+        )
         embedding_dict = type(embedding_response).to_dict(embedding_response)
         embedding_dict["embedding"] = embedding_dict["embedding"]["values"]
         return embedding_dict
@@ -181,6 +195,7 @@ async def embed_content_async(
     task_type: EmbeddingTaskTypeOptions | None = None,
     title: str | None = None,
     client: glm.GenerativeServiceAsyncClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.EmbeddingDict: ...
 
 
@@ -191,6 +206,7 @@ async def embed_content_async(
     task_type: EmbeddingTaskTypeOptions | None = None,
     title: str | None = None,
     client: glm.GenerativeServiceAsyncClient | None = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.BatchEmbeddingDict: ...
 
 
@@ -200,9 +216,13 @@ async def embed_content_async(
     task_type: EmbeddingTaskTypeOptions | None = None,
     title: str | None = None,
     client: glm.GenerativeServiceAsyncClient = None,
+    request_options: dict[str, Any] | None = None,
 ) -> text_types.EmbeddingDict | text_types.BatchEmbeddingDict:
     """The async version of `genai.embed_content`."""
     model = model_types.make_model_name(model)
+
+    if request_options is None:
+        request_options = {}
 
     if client is None:
         client = get_default_generative_async_client()
@@ -225,7 +245,10 @@ async def embed_content_async(
         )
         for batch in _batched(requests, EMBEDDING_MAX_BATCH_SIZE):
             embedding_request = glm.BatchEmbedContentsRequest(model=model, requests=batch)
-            embedding_response = await client.batch_embed_contents(embedding_request)
+            embedding_response = await client.batch_embed_contents(
+                embedding_request,
+                **request_options,
+            )
             embedding_dict = type(embedding_response).to_dict(embedding_response)
             result["embedding"].extend(e["values"] for e in embedding_dict["embeddings"])
         return result
@@ -233,7 +256,10 @@ async def embed_content_async(
         embedding_request = glm.EmbedContentRequest(
             model=model, content=content_types.to_content(content), task_type=task_type, title=title
         )
-        embedding_response = await client.embed_content(embedding_request)
+        embedding_response = await client.embed_content(
+            embedding_request,
+            **request_options,
+        )
         embedding_dict = type(embedding_response).to_dict(embedding_response)
         embedding_dict["embedding"] = embedding_dict["embedding"]["values"]
         return embedding_dict
