@@ -87,7 +87,7 @@ async def create_corpus_async(
 
     if client is None:
         client = get_default_retriever_async_client()
-        
+
     if name is None:
         corpus = glm.Corpus(name=name, display_name=display_name)
     elif retriever_types.valid_name(name):
