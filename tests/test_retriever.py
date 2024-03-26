@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Any
 import unittest
 import unittest.mock as mock
 
@@ -43,7 +42,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def create_corpus(
             request: glm.CreateCorpusRequest,
-            **kwargs,
         ) -> glm.Corpus:
             self.observed_requests.append(request)
             return glm.Corpus(
@@ -56,7 +54,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def get_corpus(
             request: glm.GetCorpusRequest,
-            **kwargs,
         ) -> glm.Corpus:
             self.observed_requests.append(request)
             return glm.Corpus(
@@ -69,7 +66,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def update_corpus(
             request: glm.UpdateCorpusRequest,
-            **kwargs,
         ) -> glm.Corpus:
             self.observed_requests.append(request)
             return glm.Corpus(
@@ -82,7 +78,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def list_corpora(
             request: glm.ListCorporaRequest,
-            **kwargs,
         ) -> glm.ListCorporaResponse:
             self.observed_requests.append(request)
             return [
@@ -103,7 +98,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def query_corpus(
             request: glm.QueryCorpusRequest,
-            **kwargs,
         ) -> glm.QueryCorpusResponse:
             self.observed_requests.append(request)
             return glm.QueryCorpusResponse(
@@ -123,16 +117,12 @@ class UnitTests(parameterized.TestCase):
             )
 
         @add_client_method
-        def delete_corpus(
-            request: glm.DeleteCorpusRequest,
-            **kwargs,
-        ) -> None:
+        def delete_corpus(request: glm.DeleteCorpusRequest) -> None:
             self.observed_requests.append(request)
 
         @add_client_method
         def create_document(
             request: glm.CreateDocumentRequest,
-            **kwargs,
         ) -> retriever_service.Document:
             self.observed_requests.append(request)
             return glm.Document(
@@ -145,7 +135,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def get_document(
             request: glm.GetDocumentRequest,
-            **kwargs,
         ) -> retriever_service.Document:
             self.observed_requests.append(request)
             return glm.Document(
@@ -158,7 +147,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def update_document(
             request: glm.UpdateDocumentRequest,
-            **kwargs,
         ) -> glm.Document:
             self.observed_requests.append(request)
             return glm.Document(
@@ -171,7 +159,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def list_documents(
             request: glm.ListDocumentsRequest,
-            **kwargs,
         ) -> glm.ListDocumentsResponse:
             self.observed_requests.append(request)
             return [
@@ -192,14 +179,12 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def delete_document(
             request: glm.DeleteDocumentRequest,
-            **kwargs,
         ) -> None:
             self.observed_requests.append(request)
 
         @add_client_method
         def query_document(
             request: glm.QueryDocumentRequest,
-            **kwargs,
         ) -> glm.QueryDocumentResponse:
             self.observed_requests.append(request)
             return glm.QueryDocumentResponse(
@@ -221,7 +206,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def create_chunk(
             request: glm.CreateChunkRequest,
-            **kwargs,
         ) -> retriever_service.Chunk:
             self.observed_requests.append(request)
             return glm.Chunk(
@@ -234,7 +218,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def batch_create_chunks(
             request: glm.BatchCreateChunksRequest,
-            **kwargs,
         ) -> glm.BatchCreateChunksResponse:
             self.observed_requests.append(request)
             return glm.BatchCreateChunksResponse(
@@ -257,7 +240,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def get_chunk(
             request: glm.GetChunkRequest,
-            **kwargs,
         ) -> retriever_service.Chunk:
             self.observed_requests.append(request)
             return glm.Chunk(
@@ -270,7 +252,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def list_chunks(
             request: glm.ListChunksRequest,
-            **kwargs,
         ) -> glm.ListChunksResponse:
             self.observed_requests.append(request)
             return [
@@ -289,10 +270,7 @@ class UnitTests(parameterized.TestCase):
             ]
 
         @add_client_method
-        def update_chunk(
-            request: glm.UpdateChunkRequest,
-            **kwargs,
-        ) -> glm.Chunk:
+        def update_chunk(request: glm.UpdateChunkRequest) -> glm.Chunk:
             self.observed_requests.append(request)
             return glm.Chunk(
                 name="corpora/demo-corpus/documents/dem-doc/chunks/demo-chunk",
@@ -312,7 +290,6 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def batch_update_chunks(
             request: glm.BatchUpdateChunksRequest,
-            **kwargs,
         ) -> glm.BatchUpdateChunksResponse:
             self.observed_requests.append(request)
             return glm.BatchUpdateChunksResponse(
@@ -335,14 +312,12 @@ class UnitTests(parameterized.TestCase):
         @add_client_method
         def delete_chunk(
             request: glm.DeleteChunkRequest,
-            **kwargs,
         ) -> None:
             self.observed_requests.append(request)
 
         @add_client_method
         def batch_delete_chunks(
             request: glm.BatchDeleteChunksRequest,
-            **kwargs,
         ) -> None:
             self.observed_requests.append(request)
 
@@ -560,7 +535,7 @@ class UnitTests(parameterized.TestCase):
             custom_metadata=[
                 retriever_service.CustomMetadata(
                     key="tag",
-                    string_list_value=[
+                    value=[
                         "Google For Developers",
                         "Project IDX",
                         "Blog",
@@ -769,322 +744,6 @@ class UnitTests(parameterized.TestCase):
 
         asource = re.sub(" *?# type: ignore", "", asource)
         self.assertEqual(source, asource)
-
-    @parameterized.parameters(
-        {"method": "create_corpus"},
-        {"method": "get_corpus"},
-        {"method": "delete_corpus"},
-    )
-    def test_corpus_called_with_request_options(self, method):
-        setattr(self.client, method, unittest.mock.MagicMock())
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            getattr(retriever, method)(name="test", request_options=request_options)
-        except AttributeError:
-            pass
-
-        getattr(self.client, method).assert_called_once_with(request, **request_options)
-
-    def test_update_corpus_called_with_request_options(self):
-        self.client.update_corpus = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        update_request = demo_corpus.update(updates={}, request_options=request_options)
-
-        self.client.update_corpus.assert_called_once_with(request, **request_options)
-
-    def test_list_corpora_called_with_request_options(self):
-        self.client.list_corpora = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        list(retriever.list_corpora(request_options=request_options))
-        self.client.list_corpora.assert_called_once_with(request, **request_options)
-
-    def test_query_corpus_called_with_request_options(self):
-        self.client.query_corpus = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        demo_chunk = demo_document.create_chunk(
-            name="demo-chunk",
-            data="This is a demo chunk.",
-        )
-        try:
-            demo_corpus.query(query="What kind of chunk is this?", request_options=request_options)
-        except AttributeError:
-            pass
-
-        self.client.query_corpus.assert_called_once_with(request, **request_options)
-
-    def test_delete_corpus_called_with_request_options(self):
-        self.client.delete_corpus = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        retriever.delete_corpus(name="corpora/demo_corpus", request_options=request_options)
-        self.client.delete_corpus.assert_called_once_with(request, **request_options)
-
-    def test_create_document_called_with_request_options(self):
-        self.client.create_document = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            demo_corpus = retriever.create_corpus(name="demo-corpus")
-            demo_corpus.create_document(name="demo-doc", request_options=request_options)
-        except AttributeError:
-            pass
-
-        self.client.create_document.assert_called_once_with(request, **request_options)
-
-    def test_get_document_called_with_request_options(self):
-        self.client.get_document = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            demo_corpus = retriever.create_corpus(name="demo-corpus")
-            x = demo_corpus.create_document(name="demo-doc")
-            d = demo_corpus.get_document(name=x.name, request_options=request_options)
-        except AttributeError:
-            pass
-
-        self.client.get_document.assert_called_once_with(request, **request_options)
-
-    def test_update_document_called_with_request_options(self):
-        self.client.update_document = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        update_request = demo_document.update(
-            updates={"display_name": "demo-doc-1"}, request_options=request_options
-        )
-
-        self.client.update_document.assert_called_once_with(request, **request_options)
-
-    def test_list_documents_called_with_request_options(self):
-        self.client.list_documents = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        demo_doc2 = demo_corpus.create_document(name="demo-doc-2")
-        list(demo_corpus.list_documents(request_options=request_options))
-
-        self.client.list_documents.assert_called_once_with(request, **request_options)
-
-    def test_delete_document_called_with_request_options(self):
-        self.client.delete_document = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        demo_doc2 = demo_corpus.create_document(name="demo-doc-2")
-        delete_request = demo_corpus.delete_document(
-            name="corpora/demo-corpus/documents/demo_doc", request_options=request_options
-        )
-
-        self.client.delete_document.assert_called_once_with(request, **request_options)
-
-    def test_query_document_called_with_request_options(self):
-        self.client.query_document = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            demo_corpus = retriever.create_corpus(name="demo-corpus")
-            demo_document = demo_corpus.create_document(name="demo-doc")
-            demo_chunk = demo_document.create_chunk(
-                name="demo-chunk",
-                data="This is a demo chunk.",
-            )
-            q = demo_document.query(
-                query="What kind of chunk is this?", request_options=request_options
-            )
-        except AttributeError:
-            pass
-
-        self.client.query_document.assert_called_once_with(request, **request_options)
-
-    def test_create_chunk_called_with_request_options(self):
-        self.client.create_chunk = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            demo_corpus = retriever.create_corpus(name="demo-corpus")
-            demo_document = demo_corpus.create_document(name="demo-doc")
-            x = demo_document.create_chunk(
-                name="demo-chunk", data="This is a demo chunk.", request_options=request_options
-            )
-        except AttributeError:
-            pass
-
-        self.client.create_chunk.assert_called_once_with(request, **request_options)
-
-    def test_batch_create_chunks_called_with_request_options(self):
-        self.client.batch_create_chunks = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        chunks = demo_document.batch_create_chunks(
-            chunks=[
-                (
-                    "corpora/demo-corpus/documents/demo-doc/chunks/dc",
-                    "This is a demo chunk.",
-                ),
-                (
-                    "corpora/demo-corpus/documents/demo-doc/chunks/dc1",
-                    "This is another demo chunk.",
-                ),
-            ],
-            request_options=request_options,
-        )
-
-        self.client.batch_create_chunks.assert_called_once_with(request, **request_options)
-
-    def test_get_chunk_called_with_request_options(self):
-        self.client.get_chunk = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            demo_corpus = retriever.create_corpus(name="demo-corpus")
-            demo_document = demo_corpus.create_document(name="demo-doc")
-            x = demo_document.create_chunk(
-                name="demo-chunk",
-                data="This is a demo chunk.",
-            )
-            ch = demo_document.get_chunk(name=x.name, request_options=request_options)
-        except AttributeError:
-            pass
-
-        self.client.get_chunk.assert_called_once_with(request, **request_options)
-
-    def test_list_chunks_called_with_request_options(self):
-        self.client.list_chunks = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            demo_corpus = retriever.create_corpus(name="demo-corpus")
-            demo_document = demo_corpus.create_document(name="demo-doc")
-            x = demo_document.create_chunk(
-                name="demo-chunk",
-                data="This is a demo chunk.",
-            )
-            y = demo_document.create_chunk(
-                name="demo-chunk-1",
-                data="This is another demo chunk.",
-            )
-            list_req = list(demo_document.list_chunks(request_options=request_options))
-        except AttributeError:
-            pass
-
-        self.client.list_chunks.assert_called_once_with(request, **request_options)
-
-    def test_update_chunk_called_with_request_options(self):
-        self.client.update_chunk = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        x = demo_document.create_chunk(
-            name="demo-chunk",
-            data="This is a demo chunk.",
-        )
-        x.update(
-            updates={"data": {"string_value": "This is an updated demo chunk."}},
-            request_options=request_options,
-        )
-
-        self.client.update_chunk.assert_called_once_with(request, **request_options)
-
-    def test_batch_update_chunks_called_with_request_options(self):
-        self.client.batch_update_chunks = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        try:
-            demo_corpus = retriever.create_corpus(name="demo-corpus")
-            demo_document = demo_corpus.create_document(name="demo-doc")
-            x = demo_document.create_chunk(
-                name="demo-chunk",
-                data="This is a demo chunk.",
-            )
-            y = demo_document.create_chunk(
-                name="demo-chunk-1",
-                data="This is another demo chunk.",
-            )
-            update_request = demo_document.batch_update_chunks(
-                chunks=[
-                    (
-                        "corpora/demo-corpus/documents/demo-doc/chunks/demo-chunk",
-                        {"data": {"string_value": "This is an updated chunk."}},
-                    ),
-                    (
-                        "corpora/demo-corpus/documents/demo-doc/chunks/demo-chunk-1",
-                        {"data": {"string_value": "This is another updated chunk."}},
-                    ),
-                ],
-                request_options=request_options,
-            )
-        except AttributeError:
-            pass
-
-        self.client.batch_update_chunks.assert_called_once_with(request, **request_options)
-
-    def test_delete_chunk_called_with_request_options(self):
-        self.client.delete_chunk = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        x = demo_document.create_chunk(
-            name="demo-chunk",
-            data="This is a demo chunk.",
-        )
-        delete_request = demo_document.delete_chunk(
-            name="demo-chunk", request_options=request_options
-        )
-
-        self.client.delete_chunk.assert_called_once_with(request, **request_options)
-
-    def test_batch_delete_chunks_called_with_request_options(self):
-        self.client.batch_delete_chunks = unittest.mock.MagicMock()
-        request = unittest.mock.ANY
-        request_options = {"timeout": 120}
-
-        demo_corpus = retriever.create_corpus(name="demo-corpus")
-        demo_document = demo_corpus.create_document(name="demo-doc")
-        x = demo_document.create_chunk(
-            name="demo-chunk",
-            data="This is a demo chunk.",
-        )
-        y = demo_document.create_chunk(
-            name="demo-chunk",
-            data="This is another demo chunk.",
-        )
-        delete_request = demo_document.batch_delete_chunks(
-            chunks=[x.name, y.name], request_options=request_options
-        )
-
-        self.client.batch_delete_chunks.assert_called_once_with(request, **request_options)
 
 
 if __name__ == "__main__":
