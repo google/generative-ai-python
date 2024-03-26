@@ -315,7 +315,7 @@ class BaseGenerateContentResponse:
 
     @property
     def parts(self):
-        """A quick accessor equivalent to `self.candidates[0].parts`
+        """A quick accessor equivalent to `self.candidates[0].content.parts`
 
         Raises:
             ValueError: If the candidate list does not contain exactly one candidate.
@@ -337,7 +337,7 @@ class BaseGenerateContentResponse:
 
     @property
     def text(self):
-        """A quick accessor equivalent to `self.candidates[0].parts[0].text`
+        """A quick accessor equivalent to `self.candidates[0].content.parts[0].text`
 
         Raises:
             ValueError: If the candidate list or parts list does not contain exactly one entry.
