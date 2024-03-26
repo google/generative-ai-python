@@ -24,7 +24,7 @@ from google.generativeai.types import safety_types
 class GenerativeModel:
     """
     The `genai.GenerativeModel` class wraps default parameters for calls to
-    `GenerativeModel.generate_message`, `GenerativeModel.count_tokens`, and
+    `GenerativeModel.generate_content`, `GenerativeModel.count_tokens`, and
     `GenerativeModel.start_chat`.
 
     This family of functionality is designed to support multi-turn conversations, and multimodal
