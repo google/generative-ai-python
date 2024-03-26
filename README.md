@@ -40,11 +40,15 @@ Install from PyPI.
 
 [Obtain an API key from AI Studio](https://makersuite.google.com/app/apikey),
 then configure it here.
+Then either export to system like this
+export API_KEY=A17d9sX12-.....
+or export it to colab if you are using colab
 
 Import the SDK and load a model.
 
 ```python
 import google.generativeai as genai
+import os
 
 genai.configure(api_key=os.environ["API_KEY"])
 
