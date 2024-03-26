@@ -12,7 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Any
+import copy
+from typing import Any, Optional, Union
 import unittest
 import unittest.mock as mock
 
@@ -20,8 +21,10 @@ import google.ai.generativelanguage as glm
 
 from google.generativeai import retriever
 from google.generativeai import permission
+from google.generativeai import models
 from google.generativeai.types import permission_types as permission_services
 from google.generativeai.types import retriever_types as retriever_services
+from google.generativeai.types import model_types as model_services
 
 from google.generativeai import client
 from absl.testing import absltest
@@ -34,6 +37,7 @@ class UnitTests(parameterized.TestCase):
 
         client._client_manager.clients["retriever"] = self.client
         client._client_manager.clients["permission"] = self.client
+        client._client_manager.clients["model"] = self.client
 
         self.observed_requests = []
 
@@ -51,11 +55,25 @@ class UnitTests(parameterized.TestCase):
         ) -> glm.Corpus:
             self.observed_requests.append(request)
             return glm.Corpus(
-                name="corpora/demo_corpus",
+                name="corpora/demo-corpus",
                 display_name="demo-corpus",
                 create_time="2000-01-01T01:01:01.123456Z",
                 update_time="2000-01-01T01:01:01.123456Z",
             )
+
+        @add_client_method
+        def get_tuned_model(
+            request: Optional[glm.GetTunedModelRequest] = None,
+            *,
+            name=None,
+            **kwargs,
+        ) -> glm.TunedModel:
+            if request is None:
+                request = glm.GetTunedModelRequest(name=name)
+            self.assertIsInstance(request, glm.GetTunedModelRequest)
+            self.observed_requests.append(request)
+            response = copy.copy(self.responses["get_tuned_model"])
+            return response
 
         @add_client_method
         def create_permission(
@@ -63,7 +81,7 @@ class UnitTests(parameterized.TestCase):
         ) -> glm.Permission:
             self.observed_requests.append(request)
             return glm.Permission(
-                name="corpora/demo_corpus/permissions/123456789",
+                name="corpora/demo-corpus/permissions/123456789",
                 role=permission_services.to_role("writer"),
                 grantee_type=permission_services.to_grantee_type("everyone"),
             )
@@ -81,7 +99,7 @@ class UnitTests(parameterized.TestCase):
         ) -> glm.Permission:
             self.observed_requests.append(request)
             return glm.Permission(
-                name="corpora/demo_corpus/permissions/123456789",
+                name="corpora/demo-corpus/permissions/123456789",
                 role=permission_services.to_role("writer"),
                 grantee_type=permission_services.to_grantee_type("everyone"),
             )
@@ -93,12 +111,12 @@ class UnitTests(parameterized.TestCase):
             self.observed_requests.append(request)
             return [
                 glm.Permission(
-                    name="corpora/demo_corpus/permissions/123456789",
+                    name="corpora/demo-corpus/permissions/123456789",
                     role=permission_services.to_role("writer"),
                     grantee_type=permission_services.to_grantee_type("everyone"),
                 ),
                 glm.Permission(
-                    name="corpora/demo_corpus/permissions/987654321",
+                    name="corpora/demo-corpus/permissions/987654321",
                     role=permission_services.to_role("reader"),
                     grantee_type=permission_services.to_grantee_type("everyone"),
                     email_address="_",
@@ -111,10 +129,17 @@ class UnitTests(parameterized.TestCase):
         ) -> glm.Permission:
             self.observed_requests.append(request)
             return glm.Permission(
-                name="corpora/demo_corpus/permissions/123456789",
+                name="corpora/demo-corpus/permissions/123456789",
                 role=permission_services.to_role("reader"),
                 grantee_type=permission_services.to_grantee_type("everyone"),
             )
+
+        @add_client_method
+        def transfer_ownership(
+            request: glm.TransferOwnershipRequest,
+        ) -> glm.TransferOwnershipResponse:
+            self.observed_requests.append(request)
+            return glm.TransferOwnershipResponse()
 
     def test_create_permission_success(self):
         x = retriever.create_corpus("demo-corpus")
@@ -138,13 +163,89 @@ class UnitTests(parameterized.TestCase):
         perm.delete()
         self.assertIsInstance(self.observed_requests[-1], glm.DeletePermissionRequest)
 
-    def test_get_permission(self):
+    def test_get_permission_with_full_name(self):
         x = retriever.create_corpus("demo-corpus")
         perm = x.create_permission("writer", "everyone")
         fetch_perm = permission.get_permission(name=perm.name)
         self.assertIsInstance(fetch_perm, permission_services.Permission)
         self.assertIsInstance(self.observed_requests[-1], glm.GetPermissionRequest)
         self.assertEqual(fetch_perm, perm)
+
+    def test_get_permission_with_resource_name_and_id_1(self):
+        x = retriever.create_corpus("demo-corpus")
+        perm = x.create_permission("writer", "everyone")
+        fetch_perm = permission.get_permission(
+            resource_name="corpora/demo-corpus", permission_id=123456789
+        )
+        self.assertIsInstance(fetch_perm, permission_services.Permission)
+        self.assertIsInstance(self.observed_requests[-1], glm.GetPermissionRequest)
+        self.assertEqual(fetch_perm, perm)
+
+    def test_get_permission_with_resource_name_name_and_id_2(self):
+        fetch_perm = permission.get_permission(
+            resource_name="tunedModels/demo-corpus", permission_id=123456789
+        )
+        self.assertIsInstance(fetch_perm, permission_services.Permission)
+        self.assertIsInstance(self.observed_requests[-1], glm.GetPermissionRequest)
+
+    def test_get_permission_with_resource_type(self):
+        fetch_perm = permission.get_permission(
+            resource_name="demo-model", permission_id=123456789, resource_type="tunedModels"
+        )
+        self.assertIsInstance(fetch_perm, permission_services.Permission)
+        self.assertIsInstance(self.observed_requests[-1], glm.GetPermissionRequest)
+
+    @parameterized.named_parameters(
+        dict(
+            testcase_name="no_information_provided",
+        ),
+        dict(
+            testcase_name="permission_id_missing",
+            resource_name="demo-corpus",
+        ),
+        dict(
+            testcase_name="resource_name_missing",
+            permission_id="123456789",
+        ),
+        dict(
+            testcase_name="invalid_corpus_name", name="corpora/demo-corpus-/permissions/123456789"
+        ),
+        dict(testcase_name="invalid_permission_id", name="corpora/demo-corpus/permissions/*"),
+        dict(
+            testcase_name="invalid_tuned_model_name",
+            name="tunedModels/my_text_model/permissions/123456789",
+        ),
+        dict(
+            testcase_name="unsupported_resource_name_1",
+            name="dataset/demo-corpus/permissions/123456789",
+        ),
+        dict(
+            testcase_name="unsupported_resource_type_2",
+            resource_name="my-dataset",
+            permission_id="123456789",
+            resource_type="dataset",
+        ),
+        dict(
+            testcase_name="invlalid_full_name_format_1",
+            name="corpora/demo-corpus/permissions/123456789/extra",
+        ),
+        dict(testcase_name="invlalid_full_name_format_2", name="corpora/2323"),
+        dict(testcase_name="invlalid_full_name_format_3", name="corpora"),
+    )
+    def test_get_permission_with_invalid_name_constructs(
+        self,
+        name=None,
+        resource_name=None,
+        permission_id=None,
+        resource_type=None,
+    ):
+        with self.assertRaises(ValueError):
+            fetch_perm = permission.get_permission(
+                name=name,
+                resource_name=resource_name,
+                permission_id=permission_id,
+                resource_type=resource_type,
+            )
 
     def test_list_permission(self):
         x = retriever.create_corpus("demo-corpus")
@@ -172,6 +273,19 @@ class UnitTests(parameterized.TestCase):
             updated_perm = perm.update(
                 {"grantee_type": permission_services.to_grantee_type("user")}
             )
+
+    def test_transfer_ownership(self):
+        self.responses["get_tuned_model"] = glm.TunedModel(
+            name="tunedModels/fake-pig-001", base_model="models/dance-monkey-007"
+        )
+        x = models.get_tuned_model("tunedModels/fake-pig-001")
+        response = x.transfer_ownership(email_address="_")
+        self.assertIsInstance(self.observed_requests[-1], glm.TransferOwnershipRequest)
+
+    def test_transfer_ownership_on_corpora(self):
+        x = retriever.create_corpus("demo-corpus")
+        with self.assertRaises(NotImplementedError):
+            x.transfer_ownership(email_address="_")
 
     @parameterized.named_parameters(
         [
@@ -203,6 +317,16 @@ class UnitTests(parameterized.TestCase):
             "permission.get_permission",
             permission.get_permission,
             permission.get_permission_async,
+        ],
+        [
+            "Permission.transfer_ownership",
+            retriever_services.Corpus.transfer_ownership,
+            retriever_services.Corpus.transfer_ownership_async,
+        ],
+        [
+            "TunedModel.transfer_ownership",
+            model_services.TunedModel.transfer_ownership,
+            model_services.TunedModel.transfer_ownership_async,
         ],
     )
     def test_async_code_match(self, obj, aobj):
