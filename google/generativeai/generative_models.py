@@ -73,6 +73,8 @@ class GenerativeModel:
         safety_settings: safety_types.SafetySettingOptions | None = None,
         generation_config: generation_types.GenerationConfigType | None = None,
         tools: content_types.FunctionLibraryType | None = None,
+        tool_config: content_types.ToolConfigType | None = None,
+        system_instructions: content_types.ContentType | None = None,
     ):
         if "/" not in model_name:
             model_name = "models/" + model_name
@@ -82,6 +84,13 @@ class GenerativeModel:
         )
         self._generation_config = generation_types.to_generation_config_dict(generation_config)
         self._tools = content_types.to_function_library(tools)
+
+        self._tool_config = content_types.to_tool_config(tool_config)
+
+        if system_instructions is None:
+            self._system_instructions = None
+        else:
+            self._system_instructions = content_types.to_content(system_instructions)
 
         self._client = None
         self._async_client = None
@@ -110,6 +119,7 @@ class GenerativeModel:
         generation_config: generation_types.GenerationConfigType | None = None,
         safety_settings: safety_types.SafetySettingOptions | None = None,
         tools: content_types.FunctionLibraryType | None,
+        tool_config: content_types.ToolsConfigType | None,
     ) -> glm.GenerateContentRequest:
         """Creates a `glm.GenerateContentRequest` from raw inputs."""
         if not contents:
@@ -118,6 +128,11 @@ class GenerativeModel:
         tools_lib = self._get_tools_lib(tools)
         if tools_lib is not None:
             tools_lib = tools_lib.to_proto()
+
+        if tool_config is None:
+            tool_config = self._tool_config
+        else:
+            tool_config = content_types.to_tool_config(tool_config)
 
         contents = content_types.to_contents(contents)
 
@@ -136,6 +151,8 @@ class GenerativeModel:
             generation_config=merged_gc,
             safety_settings=merged_ss,
             tools=tools_lib,
+            tool_config=tool_config,
+            system_instructions=self._system_instructions,
         )
 
     def _get_tools_lib(
@@ -154,6 +171,7 @@ class GenerativeModel:
         safety_settings: safety_types.SafetySettingOptions | None = None,
         stream: bool = False,
         tools: content_types.FunctionLibraryType | None = None,
+        tool_config: content_types.ToolConfigType | None = None,
         request_options: dict[str, Any] | None = None,
     ) -> generation_types.GenerateContentResponse:
         """A multipurpose function to generate responses from the model.
@@ -215,6 +233,7 @@ class GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            tool_config=tool_config,
         )
         if self._client is None:
             self._client = client.get_default_generative_client()
@@ -252,6 +271,7 @@ class GenerativeModel:
         safety_settings: safety_types.SafetySettingOptions | None = None,
         stream: bool = False,
         tools: content_types.FunctionLibraryType | None = None,
+        tool_config: content_types.ToolConfigType | None = None,
         request_options: dict[str, Any] | None = None,
     ) -> generation_types.AsyncGenerateContentResponse:
         """The async version of `GenerativeModel.generate_content`."""
@@ -260,6 +280,7 @@ class GenerativeModel:
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
+            tool_config=tool_config,
         )
         if self._async_client is None:
             self._async_client = client.get_default_generative_async_client()
@@ -388,6 +409,7 @@ class ChatSession:
         safety_settings: safety_types.SafetySettingOptions = None,
         stream: bool = False,
         tools: content_types.FunctionLibraryType | None = None,
+        tool_config: content_types.ToolConfigType | None = None,
     ) -> generation_types.GenerateContentResponse:
         """Sends the conversation history with the added message and returns the model's response.
 
@@ -446,6 +468,7 @@ class ChatSession:
             safety_settings=safety_settings,
             stream=stream,
             tools=tools_lib,
+            tool_config=tool_config,
         )
 
         self._check_response(response=response, stream=stream)
@@ -529,6 +552,7 @@ class ChatSession:
         safety_settings: safety_types.SafetySettingOptions = None,
         stream: bool = False,
         tools: content_types.FunctionLibraryType | None = None,
+        tool_config: content_types.ToolConfigType | None = None,
     ) -> generation_types.AsyncGenerateContentResponse:
         """The async version of `ChatSession.send_message`."""
         if self.enable_automatic_function_calling and stream:
@@ -557,6 +581,7 @@ class ChatSession:
             safety_settings=safety_settings,
             stream=stream,
             tools=tools_lib,
+            tool_config=tool_config,
         )
 
         self._check_response(response=response, stream=stream)

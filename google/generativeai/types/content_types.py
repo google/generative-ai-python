@@ -660,3 +660,71 @@ def to_function_library(lib: FunctionLibraryType | None) -> FunctionLibrary | No
         return lib
     else:
         return FunctionLibrary(tools=lib)
+
+
+FunctionCallingMode = glm.FunctionCallingConfig.Mode
+
+# fmt: off
+_FUNCTION_CALLING_MODE = {
+    1: FunctionCallingMode.AUTO,
+    FunctionCallingMode.AUTO: FunctionCallingMode.AUTO,
+    "mode_auto": FunctionCallingMode.AUTO,
+    "auto": FunctionCallingMode.AUTO,
+
+    2: FunctionCallingMode.ANY,
+    FunctionCallingMode.ANY: FunctionCallingMode.ANY,
+    "mode_any": FunctionCallingMode.ANY,
+    "any": FunctionCallingMode.ANY,
+
+    3: FunctionCallingMode.NONE,
+    FunctionCallingMode.NONE: FunctionCallingMode.NONE,
+    "mode_none": FunctionCallingMode.NONE,
+    "none": FunctionCallingMode.NONE,
+}
+# fmt: on
+
+FunctionCallingModeType = Union[FunctionCallingMode, str, int]
+
+
+def to_function_calling_mode(x: FunctionCallingModeType) -> FunctionCallingMode:
+    if isinstance(x, str):
+        x = x.lower()
+    return _FUNCTION_CALLING_MODE[x]
+
+
+class FunctionCallingConfigDict(TypedDict):
+    mode: FunctionCallingModeType
+    allowed_function_names: list[str]
+
+
+FunctionCallingConfigType = Union[FunctionCallingConfigDict, glm.FunctionCallingConfig]
+
+
+def to_function_calling_config(obj: FunctionCallingConfigType) -> glm.FunctionCallingConfig:
+    if isinstance(obj, (FunctionCallingMode, str, int)):
+        obj = {'mode': to_function_calling_mode(obj)}
+
+    return glm.FunctionCallingConfig(obj)
+
+class ToolConfigDict:
+    function_calling_config: FunctionCallingConfigType
+
+
+ToolConfigType = Union[
+    ToolConfigDict,
+    glm.ToolConfig
+]
+
+def to_tool_config(obj: ToolConfigType) -> glm.ToolConfig:
+    if isinstance(obj, glm.ToolConfig):
+        return obj
+    elif isinstance(obj, dict):
+        fcc = obj.pop('function_calling_config')
+        fcc = to_function_calling_config(fcc)
+        obj['function_calling_config'] = fcc
+        return glm.ToolConfig(**obj)
+    else:
+        raise TypeError(f"Could not convert input to `glm.ToolConfig`: \n'"
+                        f"  type: {type(obj)}\n", obj)
+
+
