@@ -20,7 +20,7 @@ from google.generativeai.notebook import sheets_sanitize_url
 
 
 def _sanitize_key(key: str) -> str:
-    if not re.fullmatch("[a-zA-Z0-9_-]+", key):
+    if not re.fullmatch("[\w-]+", key):
         raise ValueError('"{}" is not a valid Sheets key'.format(key))
     return key
 

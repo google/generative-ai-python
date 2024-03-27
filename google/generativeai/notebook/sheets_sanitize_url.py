@@ -20,7 +20,7 @@ from urllib import parse
 
 
 def _validate_url_part(part: str) -> None:
-    if not re.fullmatch("[a-zA-Z0-9_-]*", part):
+    if not re.fullmatch("[\w-]*", part):
         raise ValueError('"{}" is outside the restricted character set'.format(part))
 
 
