@@ -8,6 +8,7 @@ on:
     paths:
     - "google/**"
     - "tests/**"
+    - "samples/**"
     - "pyproject.toml"
     - "setup.py"
   # Allow manual runs
