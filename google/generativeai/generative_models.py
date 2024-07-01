@@ -4,11 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 import textwrap
-from typing import Any, Union, overload
+from typing import overload
 import reprlib
-
-# pylint: disable=bad-continuation, line-too-long
-
 
 import google.api_core.exceptions
 from google.generativeai import protos
@@ -508,6 +505,52 @@ class ChatSession:
         self._last_sent: protos.Content | None = None
         self._last_received: generation_types.BaseGenerateContentResponse | None = None
         self.enable_automatic_function_calling = enable_automatic_function_calling
+
+    def count_tokens(
+        self,
+        content: content_types.ContentType | None = None,
+        *,
+        tools: content_types.FunctionLibraryType | None = None,
+        tool_config: content_types.ToolConfigType | None = None,
+        request_options: helper_types.RequestOptionsType | None = None,
+    ):
+        history = self.history[:]
+
+        if content is not None:
+            content = content_types.to_content(content)
+            if not content.role:
+                content.role = self._USER_ROLE
+            history.append(content)
+
+        return self.model.count_tokens(
+            contents=history,
+            tools=tools,
+            tool_config=tool_config,
+            request_options=request_options,
+        )
+
+    def count_tokens_async(
+        self,
+        content: content_types.ContentType | None = None,
+        *,
+        tools: content_types.FunctionLibraryType | None = None,
+        tool_config: content_types.ToolConfigType | None = None,
+        request_options: helper_types.RequestOptionsType | None = None,
+    ):
+        history = self.history[:]
+
+        if content is not None:
+            content = content_types.to_content(content)
+            if not content.role:
+                content.role = self._USER_ROLE
+            history.append(content)
+
+        return await self.model.count_tokens(
+            contents=history,
+            tools=tools,
+            tool_config=tool_config,
+            request_options=request_options,
+        )
 
     def send_message(
         self,
