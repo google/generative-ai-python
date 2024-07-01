@@ -208,8 +208,9 @@ SafetySettingOptions = Union[
 
 def _expand_block_threshold(block_threshold: HarmBlockThresholdOptions):
     block_threshold = to_block_threshold(block_threshold)
-    set(_HARM_CATEGORIES.values())
-    return {category: block_threshold for category in set(_HARM_CATEGORIES.values())}
+    hc = set(_HARM_CATEGORIES.values())
+    hc.remove(protos.HarmCategory.HARM_CATEGORY_UNSPECIFIED)
+    return {category: block_threshold for category in hc}
 
 
 def to_easy_safety_dict(settings: SafetySettingOptions) -> EasySafetySettingDict:
