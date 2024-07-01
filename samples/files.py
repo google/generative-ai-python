@@ -60,6 +60,16 @@ class UnitTests(absltest.TestCase):
             print("  ", f.name)
         # [END files_list]
 
+    def test_files_get(self):
+        # [START files_get]
+        myfile = genai.upload_file(media / "poem.txt")
+        file_name = myfile.name
+        print(file_name)  # "files/*"
+
+        myfile = genai.get_file(file_name)
+        print(myfile)
+        # [END files_get]
+
     def test_files_delete(self):
         # [START files_delete]
         myfile = genai.upload_file(media / "poem.txt")
@@ -74,15 +84,6 @@ class UnitTests(absltest.TestCase):
             pass
         # [END files_delete]
 
-    def test_files_get(self):
-        # [START files_get]
-        myfile = genai.upload_file(media / "poem.txt")
-        file_name = myfile.name
-        print(file_name)  # "files/*"
-
-        myfile = genai.get_file(file_name)
-        print(myfile)
-        # [END files_get]
 
 
 if __name__ == "__main__":
