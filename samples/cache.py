@@ -96,6 +96,41 @@ class UnitTests(absltest.TestCase):
         # [END cache_update]
         cache.delete()
 
+    def test_cache_create_from_name(self):
+        # [START cache_create_from_name]
+        document = genai.upload_file(path=media / "a11.txt")
+        model_name = "gemini-1.5-flash-001"
+        cache = genai.caching.CachedContent.create(
+            model=model_name,
+            system_instruction="You are an expert analyzing transcripts.",
+            contents=[document],
+        )
+        apollo_model = genai.caching.CachedContent.from_cached_content(cache)
+        response = apollo_model.generate_content("Find a lighthearted moment from this transcript")
+        print(response.text)
+        # [END cache_create_from_name]
+        cache.delete()
+
+    def test_cache_chat(self):
+        # [START cache_chat]
+        document = genai.upload_file(path=media / "a11.txt")
+        model_name = "gemini-1.5-flash-001"
+        cache = genai.caching.CachedContent.create(
+            model=model_name,
+            system_instruction="You are an expert analyzing transcripts.",
+            contents=[document],
+        )
+        apollo_model = genai.GenerativeModel.from_cached_content(cached_content=cache)
+        chat = apollo_model.start_chat()
+        response = chat.send_message(
+            "Give me a quote from the most important part of the transcript."
+        )
+        print(response.text)
+        response = chat.send_message("What was recounted after that?")
+        print(response.text)
+        # [END cache_chat]
+        cache.delete()
+
 
 if __name__ == "__main__":
     absltest.main()
