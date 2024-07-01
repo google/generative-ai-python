@@ -40,6 +40,21 @@ jobs:
         python --version
         pip install .[dev]
         python -m unittest
+  test_pydantic1:
+    name: Test Pydantic1
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Run tests
+      run: |
+        python --version
+        pip install .[dev]
+        pip install -U "pydantic<2"
+        python -m unittest
+
   test3_10:
     name: Test Py3.10
     runs-on: ubuntu-latest
