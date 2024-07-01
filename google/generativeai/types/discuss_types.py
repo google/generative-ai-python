@@ -121,7 +121,7 @@ class ChatResponse(abc.ABC):
     ```
     import google.generativeai as genai
 
-    genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
+    genai.configure(api_key=os.environ['GEMINI_API_KEY'])
 
     response = genai.chat(messages=["Hello."])
     print(response.last) #  'Hello! What can I help you with?'

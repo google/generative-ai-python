@@ -27,7 +27,7 @@ See the [Gemini API Cookbook](https://github.com/google-gemini/gemini-api-cookbo
 import google.generativeai as genai
 import os
 
-genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 ```
 
 3. Create a model and run a prompt.
